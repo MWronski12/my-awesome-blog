@@ -1,4 +1,4 @@
-import { User } from "../models/index.js";
+import { db } from "../models/index.js";
 import { Op } from "sequelize";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -10,7 +10,7 @@ const signUp = async (req, res) => {
     var hash = bcrypt.hashSync(req.body.password, salt);
 
     // Insert user into DB
-    const user = await User.create({
+    const user = await db.User.create({
       ...req.body,
       password: hash,
     });
@@ -27,7 +27,7 @@ const signUp = async (req, res) => {
 const signIn = async (req, res) => {
   try {
     // Fetch user from DB
-    const user = await User.findOne({
+    const user = await db.User.findOne({
       where: {
         [Op.or]: [{ username: req.body.username }, { email: req.body.email }],
       },

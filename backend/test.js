@@ -1,21 +1,5 @@
-import jwt from "jsonwebtoken";
+const db = {};
 
-const secret = "key";
-const data = {
-  username: "user",
-};
+db.User = { id: 1 };
 
-// create
-jwt.sign({ data }, secret, { expiresIn: "24h" });
-
-const logResult = () => {
-  console.log(result);
-};
-
-// // verify
-// try {
-//   var decoded = jwt.verify(token, "wrong-secret");
-// } catch (err) {
-//   console.log(err);
-// }
-// console.log(decoded);
+console.log(db["User"]);

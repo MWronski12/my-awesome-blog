@@ -5,42 +5,47 @@ import defineRole from "./role.model.js";
 import definePost from "./post.model.js";
 import defineComment from "./comment.model.js";
 
-// initialize Sequelize object
-const sequelize = new Sequelize({
-  dialect: "sqlite",
-  storage: process.env.DB_PATH,
-});
+import { dbConfig } from "../config/db.config.js";
+
+// set environment
+const env = process.env.NODE_ENV || "development";
+const config = dbConfig[env];
+
+// initialize Sequelize database
+const db = {};
+db.sequelize = new Sequelize(config);
+db.Sequelize = Sequelize;
 
 // define models
-const User = defineUser(sequelize);
-const Role = defineRole(sequelize);
-const Post = definePost(sequelize);
-const Comment = defineComment(sequelize);
+db.User = defineUser(db.sequelize);
+db.Role = defineRole(db.sequelize);
+db.Post = definePost(db.sequelize);
+db.Comment = defineComment(db.sequelize);
 
 // User-Role many-to-many
-User.belongsToMany(Role, { through: "UserRoles" });
-Role.belongsToMany(User, { through: "UserRoles" });
+db.User.belongsToMany(db.Role, { through: "UserRoles" });
+db.Role.belongsToMany(db.User, { through: "UserRoles" });
 
 // User-Post one-to-many
-User.hasMany(Post);
-Post.belongsTo(User);
+db.User.hasMany(db.Post);
+db.Post.belongsTo(db.User);
 
 // User-Comment one-to-many
-User.hasMany(Comment);
-Comment.belongsTo(User);
+db.User.hasMany(db.Comment);
+db.Comment.belongsTo(db.User);
 
 // Post-Comment one-to-many
-Post.hasMany(Comment);
-Comment.belongsTo(Post);
+db.Post.hasMany(db.Comment);
+db.Comment.belongsTo(db.Post);
 
 // migrate
-await sequelize.sync({ force: true });
+await db.sequelize.sync({ force: true });
 
 // Insert default ROLES
-await Role.bulkCreate([
+await db.Role.bulkCreate([
   { name: "ADMIN" },
   { name: "MODERATOR" },
   { name: "USER" },
 ]);
 
-export { sequelize as db, User, Role, Post, Comment };
+export { db };
