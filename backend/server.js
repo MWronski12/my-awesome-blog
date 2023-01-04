@@ -1,15 +1,15 @@
 "use strict";
 
-import dotenv from "dotenv";
+import "dotenv/config";
 import express from "express";
 import bodyParser from "body-parser";
+import logger from "morgan";
 import { router } from "./app/router/index.js";
-
-dotenv.config();
 
 const app = express();
 
 app.use(bodyParser.json());
+app.use(logger("dev"));
 
 app.use("/api", router);
 
