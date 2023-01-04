@@ -1,0 +1,4 @@
+Setup express project
+Setup sqlite database
+Create sequelize models
+Setup a route and test it
