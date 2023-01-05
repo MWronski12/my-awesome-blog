@@ -1,4 +1,5 @@
 import { Sequelize } from "sequelize";
+import bcrypt from "bcryptjs";
 
 import defineUser from "./user.model.js";
 import defineRole from "./role.model.js";
@@ -8,7 +9,7 @@ import defineComment from "./comment.model.js";
 import { dbConfig } from "../config/db.config.js";
 
 // set environment
-const env = process.env.NODE_ENV || "development";
+const env = process.env.NODE_ENV || "dev";
 const config = dbConfig[env];
 
 // initialize Sequelize database
@@ -23,8 +24,8 @@ db.Post = definePost(db.sequelize);
 db.Comment = defineComment(db.sequelize);
 
 // User-Role many-to-many
-db.User.belongsToMany(db.Role, { through: "UserRoles" });
-db.Role.belongsToMany(db.User, { through: "UserRoles" });
+db.Role.belongsToMany(db.User, { through: "userroles", timestamps: false });
+db.User.belongsToMany(db.Role, { through: "userroles", timestamps: false });
 
 // User-Post one-to-many
 db.User.hasMany(db.Post);
@@ -47,5 +48,16 @@ await db.Role.bulkCreate([
   { name: "MODERATOR" },
   { name: "USER" },
 ]);
+
+// Create default admin account
+const salt = bcrypt.genSaltSync(Number.parseInt(process.env.SALT_ROUNDS));
+const hash = bcrypt.hashSync("admin", salt);
+const user = await db.User.create({
+  username: "admin",
+  email: "admin",
+  password: hash,
+});
+const adminRole = await db.Role.findOne({ where: { name: "ADMIN" } });
+await user.addRole(adminRole);
 
 export { db };

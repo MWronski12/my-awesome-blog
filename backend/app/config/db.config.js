@@ -1,11 +1,12 @@
 export const dbConfig = {
-  development: {
+  dev: {
     dialect: "sqlite",
     storage: process.env.DB_PATH,
   },
   test: {
     dialect: "sqlite",
     storage: process.env.TEST_DB_PATH,
+    logging: false,
   },
   production: {
     username: process.env.MYSQL_USER,

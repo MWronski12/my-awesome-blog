@@ -15,9 +15,19 @@ const signUp = async (req, res) => {
       password: hash,
     });
 
+    // Grant USER Role
+    const userRole = await db.Role.findOne({ where: { name: "USER" } });
+    await user.addRole(userRole);
+
+    // Generate JWT token for auto signin
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXP_TIME,
+    });
+
     res.status(201).send({
       status: "success",
-      data: { username: user.username, email: user.email },
+      message: "User successfully registered",
+      data: token,
     });
   } catch (e) {
     res.status(500).send({ status: "error", message: e.message });
@@ -26,23 +36,24 @@ const signUp = async (req, res) => {
 
 const signIn = async (req, res) => {
   try {
-    // Fetch user from DB
-    const user = await db.User.findOne({
-      where: {
-        [Op.or]: [{ username: req.body.username }, { email: req.body.email }],
-      },
-    });
+    // Fetch user from DB by username or email
+    const where = req.body.username
+      ? { username: req.body.username }
+      : { email: req.body.email };
+    const user = await db.User.findOne({ where });
 
     // User not found in DB
     if (user === null) {
-      res.status(404).send({ status: "error", message: "User not found" });
-      return;
+      return res
+        .status(404)
+        .send({ status: "error", message: "User not found" });
     }
 
     // Check password hash
     if (!bcrypt.compareSync(req.body.password, user.password)) {
-      res.status(403).send({ status: "error", message: "Bad credentials" });
-      return;
+      return res
+        .status(403)
+        .send({ status: "error", message: "Bad credentials" });
     }
 
     // Generate JWT token
@@ -50,10 +61,34 @@ const signIn = async (req, res) => {
       expiresIn: process.env.JWT_EXP_TIME,
     });
 
-    res.status(200).send({ status: "success", data: token });
+    res.status(200).send({
+      status: "success",
+      message: "Successfully signed in",
+      data: token,
+    });
   } catch (e) {
     res.status(500).send({ status: "error", message: e.message });
   }
 };
 
-export { signUp, signIn };
+const grantRole = async (req, res) => {
+  try {
+    // Fetch user and role, set role
+    const user = await db.User.findByPk(req.body.userId);
+    const role = await db.Role.findByPk(req.body.roleId);
+    if (user === null || role === null) {
+      return res
+        .status(404)
+        .send({ status: "error", message: "Bad request parameters" });
+    }
+
+    res.status(200).send({
+      status: "success",
+      message: `${role.name} role granted to ${user.username}`,
+    });
+  } catch (e) {
+    res.status(500).send({ status: "error", message: e.message });
+  }
+};
+
+export { signUp, signIn, grantRole };

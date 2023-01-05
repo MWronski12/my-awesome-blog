@@ -1,14 +1,20 @@
 import {
+  isAdmin,
+  isAdminOrModerator,
   verifyToken,
-  isAdminOrModeratorOrOwner,
 } from "../middleware/auth.middleware.js";
-import { createPost, deletePost } from "../controllers/post.controller.js";
+import {
+  getAllPosts,
+  createPost,
+  getPost,
+  updatePost,
+  deletePost,
+} from "../controllers/post.controller.js";
 
 export const registerPostRoutes = (router) => {
-  router.post("/posts", [verifyToken], createPost);
-  router.delete(
-    "/posts/:id",
-    [verifyToken, isAdminOrModeratorOrOwner],
-    deletePost
-  );
+  router.get("/post", getAllPosts);
+  router.post("/post", [verifyToken, isAdminOrModerator], createPost);
+  router.get("/post/:id", getPost);
+  router.patch("/post/:id", [verifyToken, isAdminOrModerator], updatePost);
+  router.delete("/post/:id", [verifyToken, isAdminOrModerator], deletePost);
 };

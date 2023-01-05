@@ -2,21 +2,32 @@ import jwt from "jsonwebtoken";
 import { db } from "../models/index.js";
 
 const verifyToken = (req, res, next) => {
-  let token = req.headers["x-access-token"];
-  if (!token) {
-    return res
-      .status(403)
-      .send({ status: "error", message: "No token provided" });
-  }
-  jwt.verify(token, config.secret, (err, decoded) => {
-    if (err) {
-      return res.status(401).send({
-        message: "Not authorized",
-      });
+  try {
+    let token = req.headers["x-access-token"];
+
+    // No token provided
+    if (!token) {
+      return res
+        .status(403)
+        .send({ status: "error", message: "No token provided" });
     }
-    req.userId = decoded.userId;
-    next();
-  });
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      // Verification error
+      if (err) {
+        return res.status(401).send({
+          status: "error",
+          message: err.message,
+        });
+      }
+
+      // Verification success
+      req.userId = decoded.userId;
+      next();
+    });
+  } catch (e) {
+    res.status(500).send({ status: "error", message: e.message });
+  }
 };
 
 const isAdmin = async (req, res, next) => {
@@ -24,28 +35,11 @@ const isAdmin = async (req, res, next) => {
     const user = await db.User.findByPk(req.userId);
     const roles = await user.getRoles();
     for (let role of roles) {
-      if (role === "ADMIN") {
-        next();
-        return;
+      if (role.name === "ADMIN") {
+        return next();
       }
     }
-    res.status(403).send("Not authorized");
-  } catch (e) {
-    res.status(500).send({ status: "error", message: e.message });
-  }
-};
-
-const isModerator = async (req, res, next) => {
-  try {
-    const user = await db.User.findByPk(req.userId);
-    const roles = await user.getRoles();
-    for (let role of roles) {
-      if (role === "MODERATOR") {
-        next();
-        return;
-      }
-    }
-    res.status(403).send("Not authorized");
+    res.status(403).send({ status: "error", message: "Not authorized" });
   } catch (e) {
     res.status(500).send({ status: "error", message: e.message });
   }
@@ -56,34 +50,11 @@ const isAdminOrModerator = async (req, res, next) => {
     const user = await db.User.findByPk(req.userId);
     const roles = await user.getRoles();
     for (let role of roles) {
-      if (role === "MODERATOR" || role === "ADMIN") {
+      if (role.name === "MODERATOR" || role.name === "ADMIN") {
         next();
         return;
       }
     }
-    res.status(403).send("Not authorized");
-  } catch (e) {
-    res.status(500).send({ status: "error", message: e.message });
-  }
-};
-
-const isAdminOrModeratorOrOwner = async (req, res, next) => {
-  let result = false;
-  try {
-    const user = await db.User.findByPk(req.userId);
-    if (req.params.id === user.id) {
-      next();
-      return;
-    }
-
-    const roles = await user.getRoles();
-    for (let role of roles) {
-      if (role === "ADMIN" || "MODERATOR") {
-        next();
-        return;
-      }
-    }
-
     res.status(403).send("Not authorized");
   } catch (e) {
     res.status(500).send({ status: "error", message: e.message });
@@ -92,9 +63,9 @@ const isAdminOrModeratorOrOwner = async (req, res, next) => {
 
 const verifySignUpParameters = (req, res, next) => {
   if (
-    req.body.username === null ||
-    req.body.email === null ||
-    req.body.password === null
+    req.body.username === undefined ||
+    req.body.email === undefined ||
+    req.body.password === undefined
   ) {
     res
       .status(404)
@@ -106,9 +77,19 @@ const verifySignUpParameters = (req, res, next) => {
 
 const verifySignInParameters = (req, res, next) => {
   if (
-    (req.body.username === null && req.body.email === null) ||
-    req.body.password === null
+    (req.body.username === undefined && req.body.email === undefined) ||
+    req.body.password === undefined
   ) {
+    res
+      .status(404)
+      .send({ status: "error", message: "Bad request parameters" });
+  } else {
+    next();
+  }
+};
+
+const verifyGrantRoleParameters = (req, res, next) => {
+  if (req.body.roleId === undefined || req.body.userId === undefined) {
     res
       .status(404)
       .send({ status: "error", message: "Bad request parameters" });
@@ -121,7 +102,7 @@ export {
   verifyToken,
   isAdmin,
   isAdminOrModerator,
-  isAdminOrModeratorOrOwner,
   verifySignUpParameters,
   verifySignInParameters,
+  verifyGrantRoleParameters,
 };
