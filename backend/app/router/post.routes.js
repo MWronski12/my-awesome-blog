@@ -12,9 +12,9 @@ import {
 } from "../controllers/post.controller.js";
 
 export const registerPostRoutes = (router) => {
-  router.get("/post", getAllPosts);
-  router.post("/post", [verifyToken, isAdminOrModerator], createPost);
-  router.get("/post/:id", getPost);
-  router.patch("/post/:id", [verifyToken, isAdminOrModerator], updatePost);
-  router.delete("/post/:id", [verifyToken, isAdminOrModerator], deletePost);
+  router.get("/posts", getAllPosts);
+  router.post("/posts", [verifyToken, isAdminOrModerator], createPost);
+  router.get("/posts/:id", getPost);
+  router.patch("/posts/:id", [verifyToken, isAdminOrModerator], updatePost);
+  router.delete("/posts/:id", [verifyToken, isAdminOrModerator], deletePost);
 };

@@ -20,7 +20,7 @@ const createPost = async (req, res) => {
 
 const getPost = async (req, res) => {
   try {
-    const post = await db.Post.findByPk(req.params.id);
+    const post = await db.Post.findByPk(req.params.id, { include: db.Comment });
     res.status(200).send({ status: "success", data: post });
   } catch (e) {
     res.status(500).send({ status: "error", message: e.message });
@@ -29,16 +29,22 @@ const getPost = async (req, res) => {
 
 const updatePost = async (req, res) => {
   try {
+    // Fetch post
     let post = await db.Post.findOne({
       where: {
         id: req.params.id,
       },
     });
+
+    // Post doesn't exist
     if (post === null) {
-      res.status(404).send("Not found");
+      res.status(404).send({ status: "error", message: "Not found" });
       return;
     }
-    post = { ...post, ...req.body };
+
+    // Update post data
+    post.dataValues = { ...post.dataValues, ...req.body };
+    await post.save();
     res.status(200).send({ status: "success", data: post });
   } catch (e) {
     res.status(500).send({ status: "error", message: e.message });
@@ -47,13 +53,22 @@ const updatePost = async (req, res) => {
 
 const deletePost = async (req, res) => {
   try {
-    const post = await db.Post.findByPk(req.params.postId);
+    // Fetch post
+    const post = await db.Post.findByPk(req.params.id);
+
+    // Post doesn't exist
+    if (post === null) {
+      res.status(404).send({ status: "error", message: "Not found" });
+      return;
+    }
+
+    // Delete post
     await db.Post.destroy({
       where: {
         id: post.id,
       },
     });
-    res.status(204).send({ status: "success", data: post });
+    res.status(200).send({ status: "success", data: post });
   } catch (e) {
     res.status(500).send({ status: "error", message: e.message });
   }

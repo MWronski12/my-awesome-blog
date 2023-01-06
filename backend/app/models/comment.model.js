@@ -8,10 +8,12 @@ export default (sequelize) => {
     },
     postId: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       foreignKey: true,
     },
     userId: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       foreignKey: true,
     },
   });

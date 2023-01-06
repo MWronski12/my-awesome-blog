@@ -55,7 +55,7 @@ const isAdminOrModerator = async (req, res, next) => {
         return;
       }
     }
-    res.status(403).send("Not authorized");
+    res.status(403).send({ status: "error", message: "Not authorized" });
   } catch (e) {
     res.status(500).send({ status: "error", message: e.message });
   }

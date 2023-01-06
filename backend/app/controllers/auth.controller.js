@@ -76,6 +76,8 @@ const grantRole = async (req, res) => {
     // Fetch user and role, set role
     const user = await db.User.findByPk(req.body.userId);
     const role = await db.Role.findByPk(req.body.roleId);
+
+    // Check if they exist in database
     if (user === null || role === null) {
       return res
         .status(404)
