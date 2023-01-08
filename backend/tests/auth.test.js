@@ -41,6 +41,7 @@ describe("Public auth routes", () => {
         .send(body)
         .end((err, res) => {
           console.log(res.body);
+          console.log(process.env);
           res.should.have.status(201);
           res.body.should.have.property("status").eql("success");
           res.body.should.have.property("message");
