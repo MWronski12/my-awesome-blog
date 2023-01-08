@@ -5,6 +5,13 @@ import { app } from "../server.js";
 
 let should = chai.should();
 chai.use(chaiHttp);
+const chaiAppServer = chai.request(app).keepOpen();
+
+// Tokens
+let ADMIN_TOKEN;
+let MODERATOR_TOKEN;
+let USER_TOKEN;
+let EXPIRED_TOKEN;
 
 describe("Public auth routes", () => {
   /* --------------------------------- SIGNUP --------------------------------- */
@@ -15,8 +22,7 @@ describe("Public auth routes", () => {
         email: "user@gmail.com",
       };
 
-      chai
-        .request(app)
+      chaiAppServer
         .post("/api/auth/signup")
         .send(body)
         .end((err, res) => {
@@ -30,13 +36,12 @@ describe("Public auth routes", () => {
     /* -------------------------------------------------------------------------- */
     it("It should register a new user", (done) => {
       const body = {
-        username: "user",
-        email: "user@gmail.com",
+        username: "newuser",
+        email: "newuser@gmail.com",
         password: "user1234",
       };
 
-      chai
-        .request(app)
+      chaiAppServer
         .post("/api/auth/signup")
         .send(body)
         .end((err, res) => {
@@ -56,8 +61,7 @@ describe("Public auth routes", () => {
         password: "user1234",
       };
 
-      chai
-        .request(app)
+      chaiAppServer
         .post("/api/auth/signin")
         .send(body)
         .end((err, res) => {
@@ -75,8 +79,7 @@ describe("Public auth routes", () => {
         password: "user1234",
       };
 
-      chai
-        .request(app)
+      chaiAppServer
         .post("/api/auth/signin")
         .send(body)
         .end((err, res) => {
@@ -94,8 +97,7 @@ describe("Public auth routes", () => {
         password: "wrongpassword",
       };
 
-      chai
-        .request(app)
+      chaiAppServer
         .post("/api/auth/signin")
         .send(body)
         .end((err, res) => {
@@ -110,11 +112,10 @@ describe("Public auth routes", () => {
     it("It should signin the user by username", (done) => {
       const body = {
         username: "user",
-        password: "user1234",
+        password: "user",
       };
 
-      chai
-        .request(app)
+      chaiAppServer
         .post("/api/auth/signin")
         .send(body)
         .end((err, res) => {
@@ -128,12 +129,11 @@ describe("Public auth routes", () => {
     /* -------------------------------------------------------------------------- */
     it("It should signin the user by email", (done) => {
       const body = {
-        email: "user@gmail.com",
-        password: "user1234",
+        email: "user",
+        password: "user",
       };
 
-      chai
-        .request(app)
+      chaiAppServer
         .post("/api/auth/signin")
         .send(body)
         .end((err, res) => {
@@ -147,24 +147,38 @@ describe("Public auth routes", () => {
 });
 
 describe("Private auth routes", () => {
+  before(() => {
+    ADMIN_TOKEN = jwt.sign(
+      { exp: Math.floor(Date.now() / 1000) + 60, userId: 1 }, // ADMIN
+      process.env.JWT_SECRET
+    );
+    MODERATOR_TOKEN = jwt.sign(
+      { exp: Math.floor(Date.now() / 1000) + 60, userId: 2 }, // MODERATOR
+      process.env.JWT_SECRET
+    );
+    USER_TOKEN = jwt.sign(
+      { exp: Math.floor(Date.now() / 1000) + 60, userId: 3 }, // USER
+      process.env.JWT_SECRET
+    );
+    EXPIRED_TOKEN = jwt.sign(
+      { exp: Math.floor(Date.now() / 1000) - 60, userId: 1 }, // EXPIRED ADMIN
+      process.env.JWT_SECRET
+    );
+  });
   /* ----------------------------- GRANT-ROLE ---------------------------- */
   describe("/POST grant-role", () => {
     it("It should fail when no token provided", (done) => {
-      chai
-        .request(app)
-        .post("/api/auth/grant-role")
-        .end((err, res) => {
-          res.should.have.status(403);
-          res.body.should.have.property("status").eql("error");
-          res.body.should.have.property("message");
-          done();
-        });
+      chaiAppServer.post("/api/auth/grant-role").end((err, res) => {
+        res.should.have.status(403);
+        res.body.should.have.property("status").eql("error");
+        res.body.should.have.property("message");
+        done();
+      });
     });
 
     /* -------------------------------------------------------------------------- */
     it("It should fail when false token provided", (done) => {
-      chai
-        .request(app)
+      chaiAppServer
         .post("/api/auth/grant-role")
         .set("x-access-token", "false token")
         .end((err, res) => {
@@ -177,15 +191,9 @@ describe("Private auth routes", () => {
 
     /* -------------------------------------------------------------------------- */
     it("It should fail when token expired", (done) => {
-      const token = jwt.sign(
-        { exp: Math.floor(Date.now() / 1000) - 60, userId: 1 }, // expired ADMIN
-        process.env.JWT_SECRET
-      );
-
-      chai
-        .request(app)
+      chaiAppServer
         .post("/api/auth/grant-role")
-        .set("x-access-token", token)
+        .set("x-access-token", EXPIRED_TOKEN)
         .end((err, res) => {
           res.should.have.status(401);
           res.body.should.have.property("status").eql("error");
@@ -196,15 +204,9 @@ describe("Private auth routes", () => {
 
     /* -------------------------------------------------------------------------- */
     it("It should fail when user is not ADMIN", (done) => {
-      const token = jwt.sign(
-        { exp: Math.floor(Date.now() / 1000) + 60, userId: 2 }, // MODERATOR
-        process.env.JWT_SECRET
-      );
-
-      chai
-        .request(app)
+      chaiAppServer
         .post("/api/auth/grant-role")
-        .set("x-access-token", token)
+        .set("x-access-token", MODERATOR_TOKEN)
         .end((err, res) => {
           res.should.have.status(403);
           res.body.should.have.property("status").eql("error");
@@ -215,20 +217,13 @@ describe("Private auth routes", () => {
 
     /* -------------------------------------------------------------------------- */
     it("It should fail when no userId or roleId provided", (done) => {
-      // Admin token
-      const token = jwt.sign(
-        { exp: Math.floor(Date.now() / 1000) + 60, userId: 1 }, // ADMIN
-        process.env.JWT_SECRET
-      );
-
       const body = {
         roleId: 1,
       };
 
-      chai
-        .request(app)
+      chaiAppServer
         .post("/api/auth/grant-role")
-        .set("x-access-token", token)
+        .set("x-access-token", ADMIN_TOKEN)
         .send(body)
         .end((err, res) => {
           res.should.have.status(404);
@@ -240,21 +235,14 @@ describe("Private auth routes", () => {
 
     /* -------------------------------------------------------------------------- */
     it("It should fail when no user with userId exists", (done) => {
-      // Admin token
-      const token = jwt.sign(
-        { exp: Math.floor(Date.now() / 1000) + 60, userId: 1 }, // ADMIN
-        process.env.JWT_SECRET
-      );
-
       const body = {
         roleId: 1,
         userId: 1000,
       };
 
-      chai
-        .request(app)
+      chaiAppServer
         .post("/api/auth/grant-role")
-        .set("x-access-token", token)
+        .set("x-access-token", ADMIN_TOKEN)
         .send(body)
         .end((err, res) => {
           res.should.have.status(404);
@@ -266,21 +254,14 @@ describe("Private auth routes", () => {
 
     /* -------------------------------------------------------------------------- */
     it("It should grant role", (done) => {
-      // Admin token
-      const token = jwt.sign(
-        { exp: Math.floor(Date.now() / 1000) + 60, userId: 1 }, // ADMIN
-        process.env.JWT_SECRET
-      );
-
       const body = {
         roleId: 1,
-        userId: 2,
+        userId: 3,
       };
 
-      chai
-        .request(app)
+      chaiAppServer
         .post("/api/auth/grant-role")
-        .set("x-access-token", token)
+        .set("x-access-token", ADMIN_TOKEN)
         .send(body)
         .end((err, res) => {
           res.should.have.status(200);

@@ -6,6 +6,7 @@ import { app } from "../server.js";
 
 let should = chai.should();
 chai.use(chaiHttp);
+const chaiAppServer = chai.request(app).keepOpen();
 
 // Tokens
 let ADMIN_TOKEN;
@@ -15,35 +16,17 @@ let USER_TOKEN;
 describe("Post routes", () => {
   /* ---------------------------- PREPARE FOR TESTS --------------------------- */
   before(async () => {
-    // Create user account
-    await db.User.create({
-      id: 30,
-      username: "user12",
-      email: "user12@gmail.com",
-      password: "user1234",
-    });
-
-    // Create moderator account
-    const user = await db.User.create({
-      id: 20,
-      username: "moderator",
-      email: "moderator@gmail.com",
-      password: "mod1234",
-    });
-    const role = await db.Role.findOne({ where: { name: "MODERATOR" } });
-    await user.addRole(role);
-
     // Create all roles Tokens for auth
     ADMIN_TOKEN = jwt.sign(
       { exp: Math.floor(Date.now() / 1000) + 60, userId: 1 }, // ADMIN
       process.env.JWT_SECRET
     );
     MODERATOR_TOKEN = jwt.sign(
-      { exp: Math.floor(Date.now() / 1000) + 60, userId: 20 }, // MODERATOR
+      { exp: Math.floor(Date.now() / 1000) + 60, userId: 2 }, // MODERATOR
       process.env.JWT_SECRET
     );
     USER_TOKEN = jwt.sign(
-      { exp: Math.floor(Date.now() / 1000) + 60, userId: 30 }, // USER
+      { exp: Math.floor(Date.now() / 1000) + 60, userId: 3 }, // USER
       process.env.JWT_SECRET
     );
   });
@@ -51,15 +34,12 @@ describe("Post routes", () => {
   /* ------------------------------ GET ALL POSTS ----------------------------- */
   describe("/GET all posts", () => {
     it("It should get empty list of posts", (done) => {
-      chai
-        .request(app)
-        .get("/api/posts")
-        .end((err, res) => {
-          res.should.have.status(200);
-          res.body.should.have.property("status").eql("success");
-          res.body.should.have.property("data").eql([]);
-          done();
-        });
+      chaiAppServer.get("/api/posts").end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.have.property("status").eql("success");
+        res.body.should.have.property("data").eql([]);
+        done();
+      });
     });
 
     it("It should fetch posts", (done) => {
@@ -69,8 +49,7 @@ describe("Post routes", () => {
           { content: "content2", userId: 1, title: "title2" },
           { content: "content3", userId: 1, title: "title3" },
         ],
-        chai
-          .request(app)
+        chaiAppServer
           .get("/api/posts")
           .send()
           .end((err, res) => {
@@ -91,8 +70,7 @@ describe("Post routes", () => {
         content: "contents of the first post",
       };
 
-      chai
-        .request(app)
+      chaiAppServer
         .post("/api/posts")
         .set("x-access-token", ADMIN_TOKEN)
         .send(body)
@@ -112,8 +90,7 @@ describe("Post routes", () => {
         content: "contents of the second post",
       };
 
-      chai
-        .request(app)
+      chaiAppServer
         .post("/api/posts")
         .set("x-access-token", MODERATOR_TOKEN)
         .send(body)
@@ -121,7 +98,7 @@ describe("Post routes", () => {
           res.should.have.status(201);
           res.body.should.have.property("status").eql("success");
           res.body.should.have.property("data");
-          res.body.data.should.have.property("userId").eql(20);
+          res.body.data.should.have.property("userId").eql(2);
           done();
         });
     });
@@ -133,8 +110,7 @@ describe("Post routes", () => {
         content: "contents of the third post",
       };
 
-      chai
-        .request(app)
+      chaiAppServer
         .post("/api/posts")
         .set("x-access-token", USER_TOKEN)
         .send(body)
@@ -152,23 +128,20 @@ describe("Post routes", () => {
     before(async () => {
       await db.Comment.bulkCreate([
         { content: "Amazing post!", postId: 1, userId: 1 },
-        { content: "I wanna read more!", postId: 1, userId: 20 },
-        { content: "Fascinating!", postId: 1, userId: 30 },
+        { content: "I wanna read more!", postId: 1, userId: 2 },
+        { content: "Fascinating!", postId: 1, userId: 3 },
       ]);
     });
 
     /* -------------------------------------------------------------------------- */
     it("It should get post including its comments", (done) => {
-      chai
-        .request(app)
-        .get("/api/posts/1")
-        .end((err, res) => {
-          res.should.have.status(200);
-          res.body.should.have.property("status").eql("success");
-          res.body.should.have.property("data").instanceOf(Object);
-          res.body.data.should.have.property("comments").lengthOf(3);
-          done();
-        });
+      chaiAppServer.get("/api/posts/1").end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.have.property("status").eql("success");
+        res.body.should.have.property("data").instanceOf(Object);
+        res.body.data.should.have.property("comments").lengthOf(3);
+        done();
+      });
     });
 
     /* -------------------------------------------------------------------------- */
@@ -176,8 +149,7 @@ describe("Post routes", () => {
       const body = {
         title: "New title",
       };
-      chai
-        .request(app)
+      chaiAppServer
         .patch("/api/posts/800")
         .set("x-access-token", ADMIN_TOKEN)
         .send(body)
@@ -194,8 +166,7 @@ describe("Post routes", () => {
       const body = {
         title: "New title",
       };
-      chai
-        .request(app)
+      chaiAppServer
         .patch("/api/posts/1")
         .set("x-access-token", ADMIN_TOKEN)
         .send(body)
@@ -212,8 +183,7 @@ describe("Post routes", () => {
   /* ------------------------------- DELETE POST ------------------------------ */
   describe("/DELETE post", () => {
     it("It should fail when post doesn't exist", (done) => {
-      chai
-        .request(app)
+      chaiAppServer
         .delete("/api/posts/800")
         .set("x-access-token", ADMIN_TOKEN)
         .end((err, res) => {
@@ -226,8 +196,7 @@ describe("Post routes", () => {
 
     /* -------------------------------------------------------------------------- */
     it("It should delete post with its comments", (done) => {
-      chai
-        .request(app)
+      chaiAppServer
         .delete("/api/posts/1")
         .set("x-access-token", ADMIN_TOKEN)
         .end((err, res) => {

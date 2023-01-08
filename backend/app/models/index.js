@@ -49,15 +49,33 @@ await db.Role.bulkCreate([
   { name: "USER" },
 ]);
 
-// Create default admin account
+// Create default accounts
 const salt = bcrypt.genSaltSync(Number.parseInt(process.env.SALT_ROUNDS));
-const hash = bcrypt.hashSync("admin", salt);
-const user = await db.User.create({
+let hash = bcrypt.hashSync("admin", salt);
+let user = await db.User.create({
   username: "admin",
   email: "admin",
   password: hash,
 });
 const adminRole = await db.Role.findOne({ where: { name: "ADMIN" } });
 await user.addRole(adminRole);
+
+hash = bcrypt.hashSync("moderator", salt);
+user = await db.User.create({
+  username: "moderator",
+  email: "moderator",
+  password: hash,
+});
+const moderatorRole = await db.Role.findOne({ where: { name: "MODERATOR" } });
+await user.addRole(moderatorRole);
+
+hash = bcrypt.hashSync("user", salt);
+user = await db.User.create({
+  username: "user",
+  email: "user",
+  password: hash,
+});
+const userRole = await db.Role.findOne({ where: { name: "USER" } });
+await user.addRole(userRole);
 
 export { db };
