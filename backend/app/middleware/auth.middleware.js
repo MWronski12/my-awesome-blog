@@ -33,6 +33,12 @@ const verifyToken = (req, res, next) => {
 const isAdmin = async (req, res, next) => {
   try {
     const user = await db.User.findByPk(req.userId);
+    if (user === null) {
+      return res
+        .status(404)
+        .send({ status: "error", message: "User not found" });
+    }
+
     const roles = await user.getRoles();
     for (let role of roles) {
       if (role.name === "ADMIN") {
@@ -48,6 +54,12 @@ const isAdmin = async (req, res, next) => {
 const isAdminOrModerator = async (req, res, next) => {
   try {
     const user = await db.User.findByPk(req.userId);
+    if (user === null) {
+      return res
+        .status(404)
+        .send({ status: "error", message: "User not found" });
+    }
+
     const roles = await user.getRoles();
     for (let role of roles) {
       if (role.name === "MODERATOR" || role.name === "ADMIN") {
