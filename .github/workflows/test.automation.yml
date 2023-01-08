@@ -30,8 +30,7 @@ jobs:
           cache-dependency-path: "./backend/package-lock.json"
       - uses: c-py/action-dotenv-to-setenv@v2
         with:
-          env-file:
-            description: "./backend/.env"
+          env-file: "./backend"
       - run: npm ci
         working-directory: backend
       - run: npm run test
