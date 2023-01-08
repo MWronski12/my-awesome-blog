@@ -42,6 +42,7 @@ const isAdmin = async (req, res, next) => {
     const roles = await user.getRoles();
     for (let role of roles) {
       if (role.name === "ADMIN") {
+        req.userRole = "ADMIN";
         return next();
       }
     }
@@ -63,6 +64,7 @@ const isAdminOrModerator = async (req, res, next) => {
     const roles = await user.getRoles();
     for (let role of roles) {
       if (role.name === "MODERATOR" || role.name === "ADMIN") {
+        req.userRole = role.name;
         next();
         return;
       }
