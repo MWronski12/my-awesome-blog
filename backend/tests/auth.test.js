@@ -40,8 +40,7 @@ describe("Public auth routes", () => {
         .post("/api/auth/signup")
         .send(body)
         .end((err, res) => {
-          console.log(res.body);
-          console.log(process.env);
+          console.log(process.env.TEST_DB_PATH);
           res.should.have.status(201);
           res.body.should.have.property("status").eql("success");
           res.body.should.have.property("message");
