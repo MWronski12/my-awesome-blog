@@ -31,6 +31,10 @@ describe("Post routes", () => {
     );
   });
 
+  after(async () => {
+    await db.Post.destroy({ truncate: true });
+  });
+
   /* ------------------------------ GET ALL POSTS ----------------------------- */
   describe("/GET all posts", () => {
     it("It should get empty list of posts", (done) => {
@@ -45,9 +49,9 @@ describe("Post routes", () => {
     it("It should fetch posts", (done) => {
       db.Post.bulkCreate(
         [
-          { content: "content1", userId: 1, title: "title1" },
-          { content: "content2", userId: 1, title: "title2" },
-          { content: "content3", userId: 1, title: "title3" },
+          { id: 1, content: "content1", userId: 1, title: "title1" },
+          { id: 2, content: "content2", userId: 1, title: "title2" },
+          { id: 3, content: "content3", userId: 1, title: "title3" },
         ],
         chaiAppServer
           .get("/api/posts")
@@ -116,6 +120,24 @@ describe("Post routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(403);
+          res.body.should.have.property("status").eql("error");
+          res.body.should.have.property("message");
+          done();
+        });
+    });
+
+    /* -------------------------------------------------------------------------- */
+    it("It should fail when bad parameters", (done) => {
+      const body = {
+        content: "contents of the third post",
+      };
+
+      chaiAppServer
+        .post("/api/posts")
+        .set("x-access-token", ADMIN_TOKEN)
+        .send(body)
+        .end((err, res) => {
+          res.should.have.status(404);
           res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message");
           done();

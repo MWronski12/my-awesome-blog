@@ -4,15 +4,24 @@ import "dotenv/config";
 import express from "express";
 import bodyParser from "body-parser";
 import logger from "morgan";
+import cors from "cors";
 import { router } from "./app/router/index.js";
 
 const app = express();
 
-// middleware
+// CORS
+const corsOptions = { origin: process.env.CORS_URL };
+app.use(cors(corsOptions));
+
+// Logger
 if (process.env.NODE_ENV !== "test") {
   app.use(logger("dev"));
 }
+
+// JSON body parser
 app.use(bodyParser.json());
+
+// Headers
 app.use((req, res, next) => {
   res.header(
     "Access-Control-Allow-Headers",
@@ -24,7 +33,7 @@ app.use((req, res, next) => {
 // router
 app.use("/api", router);
 
-// main
+// app
 app.listen(process.env.PORT, () => {
   console.log(`App listening on port ${process.env.PORT}`);
 });

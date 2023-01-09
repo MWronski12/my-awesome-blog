@@ -1,24 +1,21 @@
 import { verifyToken } from "../middleware/auth.middleware.js";
+import { verifyCreateCommentParameters } from "../middleware/verify.middleware.js";
 import {
   getPostComments,
   createComment,
   getComment,
   updateComment,
   deleteComment,
-} from "../controllers/comment.controller";
+} from "../controllers/comment.controller.js";
 
-export const registerPostRoutes = (router) => {
+export const registerCommentRoutes = (router) => {
   router.get("/posts/:postId/comments", getPostComments);
-  router.post("/posts/:postId/comment", [verifyToken], createComment);
-  router.get("/posts/:postId/comments/id", getComment);
-  router.patch(
-    "/posts/:postId/comments/:id",
-    [verifyToken],
-    updateComment
+  router.post(
+    "/posts/:postId/comments",
+    [verifyToken, verifyCreateCommentParameters],
+    createComment
   );
-  router.delete(
-    "/posts/:postId/comments/:id",
-    [verifyToken],
-    deleteComment
-  );
+  router.get("/posts/:postId/comments/:id", getComment);
+  router.patch("/posts/:postId/comments/:id", [verifyToken], updateComment);
+  router.delete("/posts/:postId/comments/:id", [verifyToken], deleteComment);
 };

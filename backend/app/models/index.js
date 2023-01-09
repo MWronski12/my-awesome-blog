@@ -9,7 +9,7 @@ import defineComment from "./comment.model.js";
 import { dbConfig } from "../config/db.config.js";
 
 // set environment
-const env = process.env.NODE_ENV || "dev";
+const env = process.env.NODE_ENV || "development";
 const config = dbConfig[env];
 
 // initialize Sequelize database

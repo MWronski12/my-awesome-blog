@@ -1,5 +1,5 @@
 export const dbConfig = {
-  dev: {
+  development: {
     dialect: "sqlite",
     storage: process.env.DB_PATH,
   },

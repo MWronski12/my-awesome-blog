@@ -75,33 +75,6 @@ const isAdminOrModerator = async (req, res, next) => {
   }
 };
 
-const verifySignUpParameters = (req, res, next) => {
-  if (
-    req.body.username === undefined ||
-    req.body.email === undefined ||
-    req.body.password === undefined
-  ) {
-    res
-      .status(404)
-      .send({ status: "error", message: "Bad request parameters" });
-  } else {
-    next();
-  }
-};
-
-const verifySignInParameters = (req, res, next) => {
-  if (
-    (req.body.username === undefined && req.body.email === undefined) ||
-    req.body.password === undefined
-  ) {
-    res
-      .status(404)
-      .send({ status: "error", message: "Bad request parameters" });
-  } else {
-    next();
-  }
-};
-
 const verifyGrantRoleParameters = (req, res, next) => {
   if (req.body.roleId === undefined || req.body.userId === undefined) {
     res
@@ -112,11 +85,4 @@ const verifyGrantRoleParameters = (req, res, next) => {
   }
 };
 
-export {
-  verifyToken,
-  isAdmin,
-  isAdminOrModerator,
-  verifySignUpParameters,
-  verifySignInParameters,
-  verifyGrantRoleParameters,
-};
+export { verifyToken, isAdmin, isAdminOrModerator, verifyGrantRoleParameters };

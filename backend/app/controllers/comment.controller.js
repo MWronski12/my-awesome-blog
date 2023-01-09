@@ -16,13 +16,11 @@ const getPostComments = async (req, res) => {
 
 const createComment = async (req, res) => {
   try {
-    const post = await db.Post.findByPk(req.params.postId, {
-      include: db.Comment,
-    });
+    const post = await db.Post.findByPk(req.params.postId);
     if (post === null) {
       return res.status(404).send({ status: "error", message: "Not found" });
     }
-    const comment = await db.Post.create({
+    const comment = await db.Comment.create({
       ...req.body,
       userId: req.userId,
       postId: req.params.postId,
@@ -35,17 +33,10 @@ const createComment = async (req, res) => {
 
 const getComment = async (req, res) => {
   try {
-    const post = await db.Post.findByPk(req.params.postId, {
-      include: db.Comment,
-    });
-    if (post === null) {
+    const comment = await db.Comment.findByPk(req.params.id);
+    if (comment === null) {
       return res.status(404).send({ status: "error", message: "Not found" });
     }
-    const comment = await db.Comment.create({
-      ...req.body,
-      postId: post.id,
-      userId: req.userId,
-    });
     res.status(200).send({ status: "success", data: comment });
   } catch (e) {
     res.status(500).send({ status: "error", message: e.message });
@@ -74,9 +65,9 @@ const updateComment = async (req, res) => {
     }
 
     // Update comment data
-    comment.dataValues = { ...post.dataValues, ...req.body };
-    await post.save();
-    res.status(200).send({ status: "success", data: post });
+    comment.dataValues = { ...comment.dataValues, ...req.body };
+    await comment.save();
+    res.status(200).send({ status: "success", data: comment });
   } catch (e) {
     res.status(500).send({ status: "error", message: e.message });
   }
@@ -94,11 +85,19 @@ const deleteComment = async (req, res) => {
     }
 
     // Must be ADMIN, MODERATOR OR OWNER
-    if (
-      req.userRole !== "ADMIN" &&
-      req.userRole !== "MODERATOR" &&
-      comment.userId !== req.userId
-    ) {
+    const user = await db.User.findByPk(req.userId, { include: db.Role });
+    const userRoles = await user.getRoles();
+    let isAdminOrModerator = false;
+    for (let role of userRoles) {
+      if (
+        role.dataValues.name === "ADMIN" ||
+        role.dataValues.name === "MODERATOR"
+      ) {
+        isAdminOrModerator = true;
+        break;
+      }
+    }
+    if (comment.userId != req.userId && !isAdminOrModerator) {
       return res
         .status(403)
         .send({ status: "error", message: "Not authorized" });
