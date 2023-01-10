@@ -39,7 +39,7 @@ const signIn = async (req, res) => {
     const where = req.body.username
       ? { username: req.body.username }
       : { email: req.body.email };
-    const user = await db.User.findOne({ where });
+    const user = await db.User.findOne({ where, include: db.Role });
 
     // User not found in DB
     if (user === null) {
@@ -55,10 +55,17 @@ const signIn = async (req, res) => {
         .send({ status: "error", message: "Bad credentials" });
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXP_TIME,
-    });
+    // Generate JWT token with user data
+    const token = jwt.sign(
+      {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        roles: user.roles.map((role) => role.name),
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXP_TIME }
+    );
 
     res.status(200).send({
       status: "success",

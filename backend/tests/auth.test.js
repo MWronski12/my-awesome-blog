@@ -122,6 +122,14 @@ describe("Public auth routes", () => {
           res.should.have.status(200);
           res.body.should.have.property("status").eql("success");
           res.body.should.have.property("data");
+          const decoded = JSON.parse(
+            Buffer.from(res.body.data.split(".")[1], "base64")
+          );
+          decoded.should.have.property("id").eql(3);
+          decoded.should.have.property("username").eql("user");
+          decoded.should.have.property("email").eql("user");
+          decoded.should.have.property("roles");
+          decoded.roles[0].should.be.equal("USER");
           done();
         });
     });
@@ -140,6 +148,14 @@ describe("Public auth routes", () => {
           res.should.have.status(200);
           res.body.should.have.property("status").eql("success");
           res.body.should.have.property("data");
+          const decoded = JSON.parse(
+            Buffer.from(res.body.data.split(".")[1], "base64")
+          );
+          decoded.should.have.property("id").eql(3);
+          decoded.should.have.property("username").eql("user");
+          decoded.should.have.property("email").eql("user");
+          decoded.should.have.property("roles");
+          decoded.roles[0].should.be.equal("USER");
           done();
         });
     });

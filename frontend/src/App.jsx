@@ -5,6 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 
 import Home from "./components/home.component";
+import { useGlobalState } from "./store";
 
 // import AuthService from "./services/auth.service";
 
@@ -39,10 +40,7 @@ export default function App() {
 }
 
 export function Navbar() {
-  const [state, setState] = useState({
-    showAdminContent: false,
-    currentUser: null,
-  });
+  const [user, setUser] = useGlobalState("user");
 
   return (
     <div>
@@ -55,7 +53,7 @@ export function Navbar() {
               </Link>
             </li>
 
-            {state.showAdminContent && (
+            {user && user.roles (
               <li className="nav-item">
                 <Link to={"/create-post"} className="nav-link">
                   Create post

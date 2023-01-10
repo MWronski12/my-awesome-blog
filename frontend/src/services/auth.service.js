@@ -1,16 +1,25 @@
+import { createGlobalState } from "react-hooks-global-state";
 import axios from "axios";
 
-// const API_URL = "https://my-awesome-blog-backend.ew.r.appspot.com/api/auth/";
-const API_URL = "http://localhost:8080/api/auth/";
-
 class AuthService {
-  async login(username, password) {
-    const response = await axios.post(API_URL + "signin", {
+  register(username, email, password) {
+    return axios.post(import.meta.env.API_BASE_URL + "/auth/signup", {
       username,
+      email,
       password,
     });
+  }
 
-    if (response.data.accessToken) {
+  async login(username, password) {
+    const response = await axios.post(
+      import.meta.env.API_BASE_URL + "/auth/signin",
+      {
+        username,
+        password,
+      }
+    );
+
+    if (response.data) {
       localStorage.setItem("user", JSON.stringify(response.data));
     }
     return response.data;
@@ -20,15 +29,11 @@ class AuthService {
     localStorage.removeItem("user");
   }
 
-  register(username, email, password) {
-    return axios.post(API_URL + "signup", {
-      username,
-      email,
-      password,
-    });
+  getUser() {
+    return axios.get(import.meta.env.API_BASE_URL + "/users/")
   }
 
-  getCurrentUser() {
+  getToken() {
     return JSON.parse(localStorage.getItem("user"));
   }
 }
