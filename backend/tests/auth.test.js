@@ -34,6 +34,44 @@ describe("Public auth routes", () => {
     });
 
     /* -------------------------------------------------------------------------- */
+    it("It should fail to register when username already in use.", (done) => {
+      const body = {
+        username: "user",
+        email: "user1234",
+        password: "user",
+      };
+
+      chaiAppServer
+        .post("/api/auth/signup")
+        .send(body)
+        .end((err, res) => {
+          res.should.have.status(409);
+          res.body.should.have.property("status").eql("error");
+          res.body.should.have.property("message");
+        });
+      done();
+    });
+
+    /* -------------------------------------------------------------------------- */
+    it("It should fail to register when email already in use.", (done) => {
+      const body = {
+        username: "admin1234",
+        email: "admin",
+        password: "admin",
+      };
+
+      chaiAppServer
+        .post("/api/auth/signup")
+        .send(body)
+        .end((err, res) => {
+          res.should.have.status(409);
+          res.body.should.have.property("status").eql("error");
+          res.body.should.have.property("message");
+        });
+      done();
+    });
+
+    /* -------------------------------------------------------------------------- */
     it("It should register a new user", (done) => {
       const body = {
         username: "newuser",
