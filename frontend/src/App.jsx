@@ -1,46 +1,52 @@
-import React, { useState } from "react";
+// React
+import React from "react";
+import { useGlobalState } from "./store";
+
+// React router
 import { Routes, Route, Outlet, Link } from "react-router-dom";
 
+// Components
+import Home from "./components/home.component";
+import Login from "./components/user/login.component";
+import Register from "./components/user/register.component";
+import Profile from "./components/user/profile.component";
+import CreatePost from "./components/post/create-post.component";
+import PostDetails from "./components/post/post-details.component";
+import AuthVerify from "./common/auth-verify";
+
+// Services
+import authService from "./services/auth.service";
+
+// CSS
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 
-import Home from "./components/home.component";
-import { useGlobalState } from "./store";
-
-// import AuthService from "./services/auth.service";
-
-// import Login from "./components/user/login.component";
-// import Register from "./components/user/register.component";
-// import Profile from "./components/user/profile.component";
-// import CreatePost from "./components/post/create-post.component";
-
-// import AuthVerify from "./common/auth-verify";
-// import EventBus from "./common/EventBus";
-// import PostDetails from "./components/post/post-details.component";
-
-// this.state = {
-//   currentUser: undefined,
-//   showAdminContent: false,
-// };
-
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Navbar />}>
-        <Route index element={<Home />} />
-        {/* <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/create-post" element={<CreatePost />} />
-        <Route path="/posts/:id" element={<PostDetails />} /> */}
-        <Route path="*" element={<Home />} />
-      </Route>
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<Navbar />}>
+          <Route index element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/create-post" element={<CreatePost />} />
+          <Route path="/posts/:id" element={<PostDetails />} />
+          <Route path="*" element={<Home />} />
+        </Route>
+      </Routes>
+      <AuthVerify />
+    </>
   );
 }
 
 export function Navbar() {
   const [user, setUser] = useGlobalState("user");
+
+  const onLogOut = () => {
+    authService.logout();
+    setUser(null);
+  };
 
   return (
     <div>
@@ -53,24 +59,26 @@ export function Navbar() {
               </Link>
             </li>
 
-            {user && user.roles (
-              <li className="nav-item">
-                <Link to={"/create-post"} className="nav-link">
-                  Create post
-                </Link>
-              </li>
-            )}
+            {user &&
+              (user.roles.includes("MODERATOR") ||
+                user.roles.includes("ADMIN")) && (
+                <li className="nav-item">
+                  <Link to={"/create-post"} className="nav-link">
+                    Create post
+                  </Link>
+                </li>
+              )}
           </div>
 
-          {state.currentUser ? (
+          {user ? (
             <div className="navbar-nav ml-auto">
               <li className="nav-item">
                 <Link to={"/profile"} className="nav-link">
-                  {state.currentUser.username}
+                  {user.username}
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to={"/login"} className="nav-link" onClick={this.logOut}>
+                <Link to={"/login"} className="nav-link" onClick={onLogOut}>
                   LogOut
                 </Link>
               </li>
@@ -93,9 +101,9 @@ export function Navbar() {
         </div>
       </nav>
 
-      <div className="container mt-3"></div>
-
-      {/* <AuthVerify logOut={this.logOut} /> */}
+      <div className="container mt-3">
+        <Outlet />
+      </div>
     </div>
   );
 }

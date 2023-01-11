@@ -59,7 +59,7 @@ const signIn = async (req, res) => {
     // Generate JWT token with user data
     const token = jwt.sign(
       {
-        id: user.id,
+        userId: user.id,
         username: user.username,
         email: user.email,
         roles: user.roles.map((role) => role.name),

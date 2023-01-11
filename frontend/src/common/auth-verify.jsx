@@ -1,5 +1,9 @@
-import React, { Component } from "react";
-import { withRouter } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { useGlobalState } from "../store";
+
+import { Buffer } from "buffer";
+import authService from "../services/auth.service";
 
 const parseJwt = (token) => {
   try {
@@ -9,26 +13,30 @@ const parseJwt = (token) => {
   }
 };
 
-class AuthVerify extends Component {
-  constructor(props) {
-    super(props);
+export default function AuthVerify() {
+  let location = useLocation();
+  const [user, setUser] = useGlobalState("user");
 
-    props.history.listen(() => {
-      const user = JSON.parse(localStorage.getItem("user"));
+  useEffect(() => {
+    {
+      const token = authService.getToken();
 
-      if (user) {
-        const decodedJwt = parseJwt(user.accessToken);
-
+      if (token) {
+        const decodedJwt = parseJwt(token);
         if (decodedJwt && decodedJwt.exp * 1000 < Date.now()) {
-          props.logOut();
+          authService.logout();
+          setUser(null);
+        } else if (user === null) {
+          setUser({
+            id: decodedJwt.id,
+            username: decodedJwt.username,
+            email: decodedJwt.email,
+            roles: decodedJwt.roles,
+          });
         }
       }
-    });
-  }
+    }
+  }, [location]);
 
-  render() {
-    return <div></div>;
-  }
+  return <></>;
 }
-
-export default withRouter(AuthVerify);

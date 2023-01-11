@@ -21,16 +21,18 @@ export default function Bio() {
 
       <div className="flex-grow-1">
         <p>
-          Simple backend programming project showcasing my knowledge of modern
+          Simple fullstack programming project showcasing my knowledge of modern
           authentication mechanisms using JWT tokens and creating fullstack CRUD
-          applications! Check out the
-          <a href="https://github.com/MWronski12/awesome-blog/">
-            {" "}
-            source code{" "}
-          </a>
+          applications! Check out the{" "}
+          <a href="https://github.com/MWronski12/awesome-blog/" target="_blank">
+            source code
+          </a>{" "}
           to see how it's built!
         </p>
-        <p>Try signin in as: ("user", "user") or ("admin", "admin")</p>
+        <p>
+          Following accounts are already created for testing: ("user", "user"),
+          ("moderator", "moderator") or ("admin", "admin")
+        </p>
       </div>
     </div>
   );

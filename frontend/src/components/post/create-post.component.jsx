@@ -1,23 +1,17 @@
 import React, { useState, useEffect } from "react";
 import blogService from "../../services/blog.service";
-import authService from "../../services/auth.service";
-import { withRouter } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useGlobalState } from "../../store";
 
-function CreatePost() {
+export default function CreatePost() {
   const [state, setState] = useState({
     title: "",
     content: "",
   });
 
-  useEffect(() => {
-    const user = authService.getCurrentUser();
+  const [user, setUser] = useGlobalState("user");
 
-    if (user) {
-      setState({
-        showAdminContent: user.roles.includes("ADMIN"),
-      });
-    }
-  });
+  const naigate = useNavigate();
 
   function onSubmit(e) {
     e.preventDefault();
@@ -26,11 +20,14 @@ function CreatePost() {
       .createPost({
         title: state.title,
         content: state.content,
-        userId: authService.getCurrentUser().id,
+        userId: user.id,
       })
       .then((response) => {
         setState({ title: "", content: "" });
-        props.history.push(`/awesome-blog/posts/${response.data.postId}`);
+        naigate(`/posts/${response.data.data.id}`);
+      })
+      .catch((error) => {
+        console.log(error.response.data.message);
       });
   }
 
@@ -76,5 +73,3 @@ function CreatePost() {
     </div>
   );
 }
-
-export default withRouter(CreatePost);

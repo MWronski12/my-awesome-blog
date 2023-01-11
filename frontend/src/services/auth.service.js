@@ -1,9 +1,9 @@
-import { createGlobalState } from "react-hooks-global-state";
 import axios from "axios";
+import { Buffer } from "buffer";
 
 class AuthService {
   register(username, email, password) {
-    return axios.post(import.meta.env.API_BASE_URL + "/auth/signup", {
+    return axios.post(import.meta.env.VITE_API_BASE_URL + "/auth/signup", {
       username,
       email,
       password,
@@ -12,29 +12,24 @@ class AuthService {
 
   async login(username, password) {
     const response = await axios.post(
-      import.meta.env.API_BASE_URL + "/auth/signin",
-      {
-        username,
-        password,
-      }
+      import.meta.env.VITE_API_BASE_URL + "/auth/signin",
+      { username, password }
     );
-
-    if (response.data) {
-      localStorage.setItem("user", JSON.stringify(response.data));
-    }
-    return response.data;
+    const token = response.data.data;
+    localStorage.setItem("user", token);
+    return JSON.parse(Buffer.from(token.split(".")[1], "base64"));
   }
 
   logout() {
     localStorage.removeItem("user");
   }
 
-  getUser() {
-    return axios.get(import.meta.env.API_BASE_URL + "/users/")
+  getToken() {
+    return localStorage.getItem("user");
   }
 
-  getToken() {
-    return JSON.parse(localStorage.getItem("user"));
+  getUser() {
+    return JSON.parse(Buffer.from(this.getToken().split(".")[1], "base64"));
   }
 }
 

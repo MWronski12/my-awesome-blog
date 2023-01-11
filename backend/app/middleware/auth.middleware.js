@@ -79,14 +79,4 @@ const isAdminOrModerator = async (req, res, next) => {
   }
 };
 
-const verifyGrantRoleParameters = (req, res, next) => {
-  if (req.body.roleId === undefined || req.body.userId === undefined) {
-    res
-      .status(404)
-      .send({ status: "error", message: "Bad request parameters" });
-  } else {
-    next();
-  }
-};
-
-export { verifyToken, isAdmin, isAdminOrModerator, verifyGrantRoleParameters };
+export { verifyToken, isAdmin, isAdminOrModerator};

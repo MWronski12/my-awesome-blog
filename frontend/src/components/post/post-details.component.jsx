@@ -1,39 +1,32 @@
 import React, { useState, useEffect } from "react";
-import { withRouter } from "react-router-dom";
+import { useNavigate, withRouter } from "react-router-dom";
 
-import authService from "../../services/auth.service";
 import blogService from "../../services/blog.service";
+import { useGlobalState } from "../../store";
 import CommentSection from "../comment/comment-section.component";
 import PostListItem from "./post-list-item.component";
 
-function PostDetails(props) {
-  const [state, setState] = useState({ showAdminContent: false });
+function PostDetails({ id }) {
+  const [user] = useGlobalState("user");
 
-  useEffect(() => {
-    const user = authService.getCurrentUser();
-
-    if (user) {
-      setState({
-        showAdminContent: user.roles.includes("ROLE_ADMIN"),
-      });
-    }
-  });
+  const navigate = useNavigate();
 
   function onDelete() {
-    blogService.deletePost(props.postId).then((response) => {
-      props.history.push("/awesome-blog");
+    blogService.deletePost(id).then((response) => {
+      navigate("/awesome-blog");
     });
   }
 
   return (
     <div className="mt-5">
-      {state.showAdminContent && (
-        <button className="btn btn-danger" onClick={onDelete}>
-          Delete
-        </button>
-      )}
-      <PostListItem postId={props.postId} />
-      <CommentSection postId={props.postId} />
+      {user &&
+        user.roles.includes("ADMIN")(
+          <button className="btn btn-danger" onClick={onDelete}>
+            Delete
+          </button>
+        )}
+      <PostListItem postId={id} />
+      <CommentSection postId={id} />
     </div>
   );
 }

@@ -1,115 +1,51 @@
 import React, { useState } from "react";
-import Form from "react-validation/build/form";
-import Input from "react-validation/build/input";
-import CheckButton from "react-validation/build/button";
-import { isEmail } from "validator";
+import { useForm } from "react-hook-form";
+// import { useNavigate } from "react-router-dom";
+// import { useGlobalState } from "../../store";
 
 import AuthService from "../../services/auth.service";
 
-function required(value) {
-  if (!value) {
-    return (
-      <div className="alert alert-danger" role="alert">
-        This field is required!
-      </div>
-    );
-  }
-}
-
-function email(value) {
-  if (!isEmail(value)) {
-    return (
-      <div className="alert alert-danger" role="alert">
-        This is not a valid email.
-      </div>
-    );
-  }
-}
-
-function vusername(value) {
-  if (value.length < 3 || value.length > 20) {
-    return (
-      <div className="alert alert-danger" role="alert">
-        The username must be between 3 and 20 characters.
-      </div>
-    );
-  }
-}
-
-function vpassword(value) {
-  if (value.length < 6 || value.length > 40) {
-    return (
-      <div className="alert alert-danger" role="alert">
-        The password must be between 6 and 40 characters.
-      </div>
-    );
-  }
+function ValidationError({ message }) {
+  return (
+    <div className="alert alert-danger" role="alert">
+      {message}
+    </div>
+  );
 }
 
 export default function Register() {
   const [state, setState] = useState({
-    username: "",
-    email: "",
-    password: "",
     successful: false,
     message: "",
   });
 
-  function onChangeUsername(e) {
-    this.setState({
-      username: e.target.value,
-    });
-  }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({});
 
-  function onChangeEmail(e) {
-    this.setState({
-      email: e.target.value,
-    });
-  }
-
-  function onChangePassword(e) {
-    this.setState({
-      password: e.target.value,
-    });
-  }
-
-  function handleRegister(e) {
-    e.preventDefault();
-
-    this.setState({
+  function handleRegister({ username, email, password }) {
+    setState({
       message: "",
       successful: false,
     });
 
-    this.form.validateAll();
-
-    if (this.checkBtn.context._errors.length === 0) {
-      AuthService.register(
-        this.state.username,
-        this.state.email,
-        this.state.password
-      ).then(
-        (response) => {
-          this.setState({
-            message: response.data.message,
-            successful: true,
-          });
-        },
-        (error) => {
-          const resMessage =
-            (error.response &&
-              error.response.data &&
-              error.response.data.message) ||
-            error.message ||
-            error.toString();
-
-          this.setState({
-            successful: false,
-            message: resMessage,
-          });
-        }
-      );
-    }
+    AuthService.register(username, email, password)
+      .then((response) => {
+        console.log(response.data);
+        setState({
+          successful: true,
+          message: response.data.message,
+        });
+      })
+      .catch((error) => {
+        console.log(error.response.data);
+        setState({
+          successful: false,
+          message: error.response.data.message,
+        });
+      });
   }
 
   return (
@@ -121,77 +57,96 @@ export default function Register() {
           className="profile-img-card"
         />
 
-        <Form
-          onSubmit={this.handleRegister}
-          ref={(c) => {
-            this.form = c;
-          }}
-        >
-          {!this.state.successful && (
-            <div>
-              <div className="form-group">
-                <label htmlFor="username">Username</label>
-                <Input
-                  type="text"
-                  className="form-control"
-                  name="username"
-                  value={this.state.username}
-                  onChange={this.onChangeUsername}
-                  validations={[required, vusername]}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="email">Email</label>
-                <Input
-                  type="text"
-                  className="form-control"
-                  name="email"
-                  value={this.state.email}
-                  onChange={this.onChangeEmail}
-                  validations={[required, email]}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="password">Password</label>
-                <Input
-                  type="password"
-                  className="form-control"
-                  name="password"
-                  value={this.state.password}
-                  onChange={this.onChangePassword}
-                  validations={[required, vpassword]}
-                />
-              </div>
-
-              <div className="form-group">
-                <button className="btn btn-primary btn-block">Sign Up</button>
-              </div>
-            </div>
-          )}
-
-          {this.state.message && (
+        <form onSubmit={handleSubmit(handleRegister)}>
+          <div>
             <div className="form-group">
+              <label htmlFor="username">Username</label>
+              <input
+                className="form-control"
+                {...register("username", { required: true, maxLength: 40 })}
+              />
+              {errors.username && errors.username.type === "required" && (
+                <ValidationError message={"This field is required!"} />
+              )}
+              {errors.username && errors.username.type === "maxLength" && (
+                <ValidationError
+                  message={"Username must be at most 40 characters long!"}
+                />
+              )}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input
+                className="form-control"
+                {...register("email", {
+                  required: true,
+                  maxLength: 40,
+                  pattern:
+                    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
+                })}
+              />
+              {errors.email && errors.email.type === "required" && (
+                <ValidationError message={"This field is required!"} />
+              )}
+              {errors.email && errors.email.type === "maxLength" && (
+                <ValidationError
+                  message={"Email must be at most 40 characters long!"}
+                />
+              )}
+              {errors.email && errors.email.type === "pattern" && (
+                <ValidationError message={"That is not a valid email!"} />
+              )}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input
+                className="form-control"
+                type="password"
+                {...register("password", {
+                  required: true,
+                  minLength: 8,
+                  maxLength: 20,
+                })}
+              />
+              {errors.password && errors.password.type === "required" && (
+                <ValidationError message={"This field is required!"} />
+              )}
+              {errors.password && errors.password.type === "minLength" && (
+                <ValidationError
+                  message={"Password must be at least 8 characters long!"}
+                />
+              )}
+              {errors.password && errors.password.type === "maxLength" && (
+                <ValidationError
+                  message={"Password must be at most 20 characters long!"}
+                />
+              )}
+            </div>
+
+            <div className="form-group mt-3">
+              <button className="btn btn-primary btn-block w-100">
+                Sign Up
+              </button>
+            </div>
+          </div>
+
+          {state.message && (
+            <div className="form-group mt-3">
               <div
                 className={
-                  this.state.successful
+                  state.successful
                     ? "alert alert-success"
                     : "alert alert-danger"
                 }
                 role="alert"
               >
-                {this.state.message}
+                {state.message}
               </div>
             </div>
           )}
-          <CheckButton
-            style={{ display: "none" }}
-            ref={(c) => {
-              this.checkBtn = c;
-            }}
-          />
-        </Form>
+        </form>
       </div>
     </div>
   );

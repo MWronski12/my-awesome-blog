@@ -1,4 +1,4 @@
-import chai from "chai";
+import chai, { assert } from "chai";
 import chaiHttp from "chai-http";
 import jwt from "jsonwebtoken";
 import { app } from "../server.js";
@@ -90,6 +90,28 @@ describe("Public auth routes", () => {
           done();
         });
     });
+
+    /* -------------------------------------------------------------------------- */
+    it("It should obtain a valid token after signup", (done) => {
+      const body = {
+        username: "newuser1",
+        email: "newuser1@gmail.com",
+        password: "user1234",
+      };
+      chaiAppServer
+        .post("/api/auth/signup")
+        .send(body)
+        .end((err, res) => {
+          res.should.have.status(201);
+          res.body.should.have.property("status").eql("success");
+          res.body.should.have.property("message");
+          res.body.should.have.property("data");
+          jwt.verify(res.body.data, process.env.JWT_SECRET, (err, decoded) => {
+            assert.isNull(err);
+          });
+          done();
+        });
+    });
   });
 
   /* ---------------------------------- SIGNIN --------------------------------- */
@@ -163,7 +185,7 @@ describe("Public auth routes", () => {
           const decoded = JSON.parse(
             Buffer.from(res.body.data.split(".")[1], "base64")
           );
-          decoded.should.have.property("id").eql(3);
+          decoded.should.have.property("userId").eql(3);
           decoded.should.have.property("username").eql("user");
           decoded.should.have.property("email").eql("user");
           decoded.should.have.property("roles");
@@ -189,7 +211,7 @@ describe("Public auth routes", () => {
           const decoded = JSON.parse(
             Buffer.from(res.body.data.split(".")[1], "base64")
           );
-          decoded.should.have.property("id").eql(3);
+          decoded.should.have.property("userId").eql(3);
           decoded.should.have.property("username").eql("user");
           decoded.should.have.property("email").eql("user");
           decoded.should.have.property("roles");

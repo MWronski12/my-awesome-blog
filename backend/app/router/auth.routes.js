@@ -1,12 +1,9 @@
 import { signUp, signIn, grantRole } from "../controllers/auth.controller.js";
-import {
-  verifyToken,
-  isAdmin,
-  verifyGrantRoleParameters,
-} from "../middleware/auth.middleware.js";
+import { verifyToken, isAdmin } from "../middleware/auth.middleware.js";
 import {
   verifySignUpParameters,
   verifySignInParameters,
+  verifyGrantRoleParameters,
 } from "../middleware/verify.middleware.js";
 
 export const registerAuthRoutes = (router) => {

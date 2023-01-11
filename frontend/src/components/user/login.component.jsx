@@ -1,76 +1,51 @@
 import React, { useState } from "react";
-import { Form } from "react-validation/build";
-import Input from "react-validation/build/input";
-import CheckButton from "react-validation/build/button";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { useGlobalState } from "../../store";
 
 import AuthService from "../../services/auth.service";
-import eventBus from "../../common/EventBus";
 
-function required(value) {
-  if (!value) {
-    return (
-      <div className="alert alert-danger" role="alert">
-        This field is required!
-      </div>
-    );
-  }
+function ValidationError({ message }) {
+  return (
+    <div className="alert alert-danger" role="alert">
+      {message}
+    </div>
+  );
 }
 
 export default function Login() {
+  const [user, setUser] = useGlobalState("user");
+
   const [state, setState] = useState({
-    username: "",
-    password: "",
     loading: false,
     message: "",
   });
 
-  function onChangeUsername(e) {
-    setState({
-      username: e.target.value,
-    });
-  }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
-  function onChangePassword(e) {
-    setState({
-      password: e.target.value,
-    });
-  }
+  const navigate = useNavigate();
 
-  function handleLogin(e) {
-    e.preventDefault();
-
+  function handleLogin({ username, password }) {
     setState({
       message: "",
       loading: true,
     });
 
-    form.validateAll();
-
-    if (checkBtn.context._errors.length === 0) {
-      AuthService.login(state.username, state.password).then(
-        () => {
-          props.history.push("/awesome-blog/profile");
-          eventBus.dispatch("login");
-        },
-        (error) => {
-          const resMessage =
-            (error.response &&
-              error.response.data &&
-              error.response.data.message) ||
-            error.message ||
-            error.toString();
-
-          setState({
-            loading: false,
-            message: resMessage,
-          });
-        }
-      );
-    } else {
-      setState({
-        loading: false,
+    AuthService.login(username, password)
+      .then((user) => {
+        setUser(user);
+        navigate("/profile");
+      })
+      .catch((error) => {
+        setState({
+          loading: false,
+          message: error.response.data.message,
+        });
       });
-    }
   }
 
   return (
@@ -82,39 +57,35 @@ export default function Login() {
           className="profile-img-card"
         />
 
-        <Form
-          onSubmit={handleLogin}
-          ref={(c) => {
-            form = c;
-          }}
-        >
+        <form onSubmit={handleSubmit(handleLogin)}>
           <div className="form-group">
             <label htmlFor="username">Username</label>
-            <Input
-              type="text"
+            <input
               className="form-control"
-              name="username"
-              value={state.username}
-              onChange={onChangeUsername}
-              validations={[required]}
+              {...register("username", { required: true })}
             />
+            {errors.username && errors.username.type === "required" && (
+              <ValidationError message={"This field is required!"} />
+            )}
           </div>
 
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <Input
-              type="password"
+            <input
               className="form-control"
-              name="password"
-              value={state.password}
-              onChange={onChangePassword}
-              validations={[required]}
+              type="password"
+              {...register("password", {
+                required: true,
+              })}
             />
+            {errors.password && errors.password.type === "required" && (
+              <ValidationError message={"This field is required!"} />
+            )}
           </div>
 
-          <div className="form-group">
+          <div className="form-group mt-3">
             <button
-              className="btn btn-primary btn-block"
+              className="btn btn-primary btn-block w-100"
               disabled={state.loading}
             >
               {state.loading && (
@@ -125,19 +96,13 @@ export default function Login() {
           </div>
 
           {state.message && (
-            <div className="form-group">
+            <div className="form-group mt-3">
               <div className="alert alert-danger" role="alert">
                 {state.message}
               </div>
             </div>
           )}
-          <CheckButton
-            style={{ display: "none" }}
-            ref={(c) => {
-              checkBtn = c;
-            }}
-          />
-        </Form>
+        </form>
       </div>
     </div>
   );

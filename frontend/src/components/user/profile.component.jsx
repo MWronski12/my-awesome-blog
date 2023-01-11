@@ -1,54 +1,32 @@
-import React, { useEffect } from "react";
-import { Redirect } from "react-router-dom";
-import AuthService from "../../services/auth.service";
+import React from "react";
+import authService from "../../services/auth.service";
+import { useGlobalState } from "../../store";
 
 export default function Profile() {
-  const [state, setState] = useState({
-    redirect: null,
-    userReady: false,
-    currentUser: { username: "" },
-  });
-
-  useEffect(() => {
-    setState({ ...state, currentUser: AuthService.getCurrentUser() });
-
-    if (state.currentUser) {
-      setState({ ...state, redirect: "/awesome-blog/home" });
-    }
-  });
-
-  if (state.redirect) {
-    return <Redirect to={state.redirect} />;
-  }
+  const [user, setUser] = useGlobalState("user");
 
   return (
-    <div className="container">
-      {state.userReady ? (
+    <div className="container text-break">
+      {user ? (
         <div>
           <header className="jumbotron">
             <h3>
-              <strong>{state.currentUser.username}</strong> Profile
+              <strong>{user.username}</strong> profile
             </h3>
           </header>
           <p>
-            <strong>Token:</strong>{" "}
-            {state.currentUser.accessToken.substring(0, 20)} ...{" "}
-            {state.currentUser.accessToken.substr(
-              state.currentUser.accessToken.length - 20
-            )}
+            <strong>JWT Token:</strong> {authService.getToken()}
           </p>
           <p>
-            <strong>Id:</strong> {state.currentUser.id}
+            <strong>Id:</strong> {user.id}
           </p>
           <p>
-            <strong>Email:</strong> {state.currentUser.email}
+            <strong>Email:</strong> {user.email}
           </p>
           <strong>Authorities:</strong>
           <ul>
-            {state.currentUser.roles &&
-              state.currentUser.roles.map((role, index) => (
-                <li key={index}>{role}</li>
-              ))}
+            {user.roles &&
+              user.roles.map((role, index) => <li key={index}>{role}</li>)}
           </ul>
         </div>
       ) : null}

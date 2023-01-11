@@ -75,9 +75,20 @@ const verifyCreateCommentParameters = (req, res, next) => {
   }
 };
 
+const verifyGrantRoleParameters = (req, res, next) => {
+  if (req.body.roleId === undefined || req.body.userId === undefined) {
+    res
+      .status(404)
+      .send({ status: "error", message: "Bad request parameters" });
+  } else {
+    next();
+  }
+};
+
 export {
   verifySignUpParameters,
   verifySignInParameters,
   verifyCreatePostParameters,
   verifyCreateCommentParameters,
+  verifyGrantRoleParameters,
 };
