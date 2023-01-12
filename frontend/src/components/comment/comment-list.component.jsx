@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
-import Comment from "./comment.component";
+import Comment from "./comment-details.component";
 import BlogService from "../../services/blog.service";
 
-export default function CommentList() {
+export default function CommentList({ postId }) {
   const [state, setState] = useState({
     comments: [],
     newCommentEvent: 0,
   });
 
   useEffect(() => {
-    BlogService.getPostComments(props.postId).then((response) => {
-      setState({ ...state, comments: response.data });
+    BlogService.getPostComments(postId).then((response) => {
+      setState({ ...state, comments: response.data.comments });
     });
   });
 
@@ -24,7 +24,7 @@ export default function CommentList() {
   return (
     <div>
       {state.comments.map((comment) => (
-        <Comment key={comment.id} id={comment.id} />
+        <Comment key={comment.id} comment={comment} />
       ))}
     </div>
   );

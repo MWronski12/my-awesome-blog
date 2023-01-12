@@ -5,6 +5,7 @@ import { useGlobalState } from "../../store";
 
 import AuthService from "../../services/auth.service";
 
+// Component for displaying error messages
 function ValidationError({ message }) {
   return (
     <div className="alert alert-danger" role="alert">
@@ -14,20 +15,22 @@ function ValidationError({ message }) {
 }
 
 export default function Login() {
-  const [user, setUser] = useGlobalState("user");
-
+  // Used for displaying error messages
   const [state, setState] = useState({
     loading: false,
     message: "",
   });
 
+  // Used after successful login
+  const navigate = useNavigate();
+  const [user, setUser] = useGlobalState("user");
+
+  // Form validation hook
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-
-  const navigate = useNavigate();
 
   function handleLogin({ username, password }) {
     setState({
@@ -36,10 +39,12 @@ export default function Login() {
     });
 
     AuthService.login(username, password)
-      .then((user) => {
-        setUser(user);
+      // Login was successful
+      .then((response) => {
+        setUser(response.data.user);
         navigate("/profile");
       })
+      // Display error message if failed
       .catch((error) => {
         setState({
           loading: false,
@@ -61,6 +66,7 @@ export default function Login() {
           <div className="form-group">
             <label htmlFor="username">Username</label>
             <input
+              autoFocus
               className="form-control"
               {...register("username", { required: true })}
             />

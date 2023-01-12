@@ -15,9 +15,8 @@ class AuthService {
       import.meta.env.VITE_API_BASE_URL + "/auth/signin",
       { username, password }
     );
-    const token = response.data.data;
-    localStorage.setItem("user", token);
-    return JSON.parse(Buffer.from(token.split(".")[1], "base64"));
+    localStorage.setItem("user", response.data.token);
+    return response;
   }
 
   logout() {
@@ -28,8 +27,15 @@ class AuthService {
     return localStorage.getItem("user");
   }
 
-  getUser() {
-    return JSON.parse(Buffer.from(this.getToken().split(".")[1], "base64"));
+  isAdminOrModerator(user) {
+    if (user === null) {
+      return false;
+    } else if (user.roles.includes("MODERATOR")) {
+      return true;
+    } else if (user.roles.includes("ADMIN")) {
+      return true;
+    }
+    return false;
   }
 }
 

@@ -35,10 +35,10 @@ class BlogService {
     );
   }
 
-  getComment(commentId) {
+  getComment(postId, commentId) {
     return axios.get(
       import.meta.env.VITE_API_BASE_URL +
-        `/posts/${comment.postId}/comments/${commentId}`
+        `/posts/${postId}/comments/${commentId}`
     );
   }
 

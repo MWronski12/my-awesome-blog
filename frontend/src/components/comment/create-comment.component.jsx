@@ -1,18 +1,10 @@
 import React, { useState, useEffect } from "react";
-import authService from "../../services/auth.service";
 import blogService from "../../services/blog.service";
+import { useGlobalState } from "../../store";
 
-export default function AddComment() {
-  const [state, setState] = useState({
-    user: undefined,
-    comment: "",
-  });
-
-  useEffect(() => {
-    BlogService.getPostComments(props.postId).then((response) => {
-      setState({ ...state, comments: response.data });
-    });
-  });
+export default function AddComment({ postId, newCommentCallback }) {
+  const [user, setUser] = useGlobalState("user");
+  const [state, setState] = useState({ comment: "" });
 
   function onChange(e) {
     setState({ ...state, comment: e.target.value });
@@ -23,13 +15,13 @@ export default function AddComment() {
 
     blogService
       .createComment({
-        userId: state.user.id,
-        postId: props.postId,
+        userId: user.id,
+        postId: postId,
         content: state.comment,
       })
       .then((response) => {
         setState({ ...state, comment: "" });
-        props.newCommentCallback();
+        newCommentCallback();
       });
   }
 

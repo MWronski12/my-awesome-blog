@@ -25,16 +25,19 @@ export default function App() {
   return (
     <>
       <Routes>
+        {/* Navbar is the main element always present */}
         <Route path="/" element={<Navbar />}>
           <Route index element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/create-post" element={<CreatePost />} />
-          <Route path="/posts/:id" element={<PostDetails />} />
+          <Route path="/posts/:postId" element={<PostDetails />} />
           <Route path="*" element={<Home />} />
         </Route>
       </Routes>
+
+      {/* Checks if token didnt expire on each new url */}
       <AuthVerify />
     </>
   );
@@ -43,7 +46,7 @@ export default function App() {
 export function Navbar() {
   const [user, setUser] = useGlobalState("user");
 
-  const onLogOut = () => {
+  const onLogout = () => {
     authService.logout();
     setUser(null);
   };
@@ -78,7 +81,7 @@ export function Navbar() {
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to={"/login"} className="nav-link" onClick={onLogOut}>
+                <Link to={"/login"} className="nav-link" onClick={onLogout}>
                   LogOut
                 </Link>
               </li>

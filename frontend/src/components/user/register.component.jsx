@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-// import { useNavigate } from "react-router-dom";
-// import { useGlobalState } from "../../store";
+import { useNavigate } from "react-router-dom";
+import { useGlobalState } from "../../store";
 
 import AuthService from "../../services/auth.service";
 
@@ -14,11 +14,17 @@ function ValidationError({ message }) {
 }
 
 export default function Register() {
+  // Used for displaying error messages
   const [state, setState] = useState({
     successful: false,
     message: "",
   });
 
+  // Used after successful registration and auto login
+  const navigate = useNavigate();
+  const [user, setUser] = useGlobalState("user");
+
+  // Form validation hook
   const {
     register,
     handleSubmit,
@@ -32,15 +38,22 @@ export default function Register() {
     });
 
     AuthService.register(username, email, password)
+      // Registration was successful
       .then((response) => {
-        console.log(response.data);
         setState({
           successful: true,
           message: response.data.message,
         });
       })
+      // Login after successful registration
+      .then(() => {
+        AuthService.login(username, password).then((response) => {
+          setUser(response.data.user);
+          navigate("/profile");
+        });
+      })
+      // Display error message if registration failed
       .catch((error) => {
-        console.log(error.response.data);
         setState({
           successful: false,
           message: error.response.data.message,
@@ -62,6 +75,7 @@ export default function Register() {
             <div className="form-group">
               <label htmlFor="username">Username</label>
               <input
+                autoFocus
                 className="form-control"
                 {...register("username", { required: true, maxLength: 40 })}
               />
