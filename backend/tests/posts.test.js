@@ -40,8 +40,7 @@ describe("Post routes", () => {
     it("It should get empty list of posts", (done) => {
       chaiAppServer.get("/api/posts").end((err, res) => {
         res.should.have.status(200);
-        res.body.should.have.property("status").eql("success");
-        res.body.should.have.property("data").eql([]);
+        res.body.should.have.property("posts").eql([]);
         done();
       });
     });
@@ -58,8 +57,10 @@ describe("Post routes", () => {
           .send()
           .end((err, res) => {
             res.should.have.status(200);
-            res.body.should.have.property("status").eql("success");
-            res.body.should.have.property("data").instanceOf(Array).lengthOf(3);
+            res.body.should.have
+              .property("posts")
+              .instanceOf(Array)
+              .lengthOf(3);
             done();
           })
       );
@@ -80,9 +81,8 @@ describe("Post routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(201);
-          res.body.should.have.property("status").eql("success");
-          res.body.should.have.property("data");
-          res.body.data.should.have.property("userId").eql(1);
+          res.body.should.have.property("post");
+          res.body.post.should.have.property("userId").eql(1);
           done();
         });
     });
@@ -100,9 +100,8 @@ describe("Post routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(201);
-          res.body.should.have.property("status").eql("success");
-          res.body.should.have.property("data");
-          res.body.data.should.have.property("userId").eql(2);
+          res.body.should.have.property("post");
+          res.body.post.should.have.property("userId").eql(2);
           done();
         });
     });
@@ -120,7 +119,6 @@ describe("Post routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(403);
-          res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message");
           done();
         });
@@ -138,7 +136,6 @@ describe("Post routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(404);
-          res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message");
           done();
         });
@@ -159,9 +156,8 @@ describe("Post routes", () => {
     it("It should get post including its comments", (done) => {
       chaiAppServer.get("/api/posts/1").end((err, res) => {
         res.should.have.status(200);
-        res.body.should.have.property("status").eql("success");
-        res.body.should.have.property("data").instanceOf(Object);
-        res.body.data.should.have.property("comments").lengthOf(3);
+        res.body.should.have.property("post").instanceOf(Object);
+        res.body.post.should.have.property("comments").lengthOf(3);
         done();
       });
     });
@@ -177,14 +173,13 @@ describe("Post routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(404);
-          res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message");
           done();
         });
     });
 
     /* -------------------------------------------------------------------------- */
-    it("It should fail when trying to update post that doesnt exist", (done) => {
+    it("It should update the post", (done) => {
       const body = {
         title: "New title",
       };
@@ -194,9 +189,8 @@ describe("Post routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(200);
-          res.body.should.have.property("status").eql("success");
-          res.body.should.have.property("data").instanceOf(Object);
-          res.body.data.should.have.property("title").eql(body.title);
+          res.body.should.have.property("post").instanceOf(Object);
+          res.body.post.should.have.property("title").eql("New title");
           done();
         });
     });
@@ -210,7 +204,6 @@ describe("Post routes", () => {
         .set("x-access-token", ADMIN_TOKEN)
         .end((err, res) => {
           res.should.have.status(404);
-          res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message");
           done();
         });
@@ -223,8 +216,11 @@ describe("Post routes", () => {
         .set("x-access-token", ADMIN_TOKEN)
         .end((err, res) => {
           res.should.have.status(200);
-          res.body.should.have.property("status").eql("success");
-          res.body.should.have.property("data").instanceOf(Object);
+          res.body.should.have.property("post").instanceOf(Object);
+          res.body.post.should.have.property("id").eql(1);
+          res.body.post.should.have.property("title");
+          res.body.post.should.have.property("content");
+          res.body.post.should.have.property("userId");
           done();
         });
 

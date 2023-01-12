@@ -6,11 +6,11 @@ const getPostComments = async (req, res) => {
       include: db.Comment,
     });
     if (post === null) {
-      return res.status(404).send({ status: "error", message: "Not found" });
+      return res.status(404).send({ message: "Not found" });
     }
-    res.status(200).send({ status: "success", data: post.comments });
+    res.status(200).send({ postId: post.id, comments: post.comments });
   } catch (e) {
-    res.status(500).send({ status: "error", message: e.message });
+    res.status(500).send({ message: e.message });
   }
 };
 
@@ -18,16 +18,16 @@ const createComment = async (req, res) => {
   try {
     const post = await db.Post.findByPk(req.params.postId);
     if (post === null) {
-      return res.status(404).send({ status: "error", message: "Not found" });
+      return res.status(404).send({ message: "Not found" });
     }
     const comment = await db.Comment.create({
       ...req.body,
       userId: req.userId,
-      postId: req.params.postId,
+      postId: Number.parseInt(req.params.postId),
     });
-    res.status(201).send({ status: "success", data: comment });
+    res.status(201).send({ comment });
   } catch (e) {
-    res.status(500).send({ status: "error", message: e.message });
+    res.status(500).send({ message: e.message });
   }
 };
 
@@ -35,11 +35,11 @@ const getComment = async (req, res) => {
   try {
     const comment = await db.Comment.findByPk(req.params.id);
     if (comment === null) {
-      return res.status(404).send({ status: "error", message: "Not found" });
+      return res.status(404).send({ message: "Not found" });
     }
-    res.status(200).send({ status: "success", data: comment });
+    res.status(200).send({ comment });
   } catch (e) {
-    res.status(500).send({ status: "error", message: e.message });
+    res.status(500).send({ message: e.message });
   }
 };
 
@@ -50,7 +50,7 @@ const updateComment = async (req, res) => {
 
     // Comment doesn't exist
     if (comment === null) {
-      return res.status(404).send({ status: "error", message: "Not found" });
+      return res.status(404).send({ message: "Not found" });
     }
 
     // Must be ADMIN, MODERATOR OR OWNER
@@ -59,17 +59,15 @@ const updateComment = async (req, res) => {
       req.userRole !== "MODERATOR" &&
       comment.userId !== req.userId
     ) {
-      return res
-        .status(403)
-        .send({ status: "error", message: "Not authorized" });
+      return res.status(403).send({ message: "Not authorized" });
     }
 
     // Update comment data
     comment.dataValues = { ...comment.dataValues, ...req.body };
     await comment.save();
-    res.status(200).send({ status: "success", data: comment });
+    res.status(200).send({ comment });
   } catch (e) {
-    res.status(500).send({ status: "error", message: e.message });
+    res.status(500).send({ message: e.message });
   }
 };
 
@@ -80,15 +78,14 @@ const deleteComment = async (req, res) => {
 
     // Post doesn't exist
     if (comment === null) {
-      res.status(404).send({ status: "error", message: "Not found" });
+      res.status(404).send({ message: "Not found" });
       return;
     }
 
     // Must be ADMIN, MODERATOR OR OWNER
     const user = await db.User.findByPk(req.userId, { include: db.Role });
-    const userRoles = await user.getRoles();
     let isAdminOrModerator = false;
-    for (let role of userRoles) {
+    for (let role of user.roles) {
       if (
         role.dataValues.name === "ADMIN" ||
         role.dataValues.name === "MODERATOR"
@@ -98,9 +95,7 @@ const deleteComment = async (req, res) => {
       }
     }
     if (comment.userId != req.userId && !isAdminOrModerator) {
-      return res
-        .status(403)
-        .send({ status: "error", message: "Not authorized" });
+      return res.status(403).send({ message: "Not authorized" });
     }
 
     // Delete post
@@ -109,9 +104,9 @@ const deleteComment = async (req, res) => {
         id: comment.id,
       },
     });
-    res.status(200).send({ status: "success", data: comment });
+    res.status(200).send({ comment });
   } catch (e) {
-    res.status(500).send({ status: "error", message: e.message });
+    res.status(500).send({ message: e.message });
   }
 };
 

@@ -3,27 +3,27 @@ import { db } from "../models/index.js";
 const getAllPosts = async (req, res) => {
   try {
     const posts = await db.Post.findAll();
-    res.status(200).send({ status: "success", data: posts });
+    res.status(200).send({ posts });
   } catch (e) {
-    res.status(500).send({ status: "error", message: e.message });
+    res.status(500).send({ message: e.message });
   }
 };
 
 const createPost = async (req, res) => {
   try {
     const post = await db.Post.create({ ...req.body, userId: req.userId });
-    res.status(201).send({ status: "success", data: post });
+    res.status(201).send({ post });
   } catch (e) {
-    res.status(500).send({ status: "error", message: e.message });
+    res.status(500).send({ message: e.message });
   }
 };
 
 const getPost = async (req, res) => {
   try {
     const post = await db.Post.findByPk(req.params.id, { include: db.Comment });
-    res.status(200).send({ status: "success", data: post });
+    res.status(200).send({ post });
   } catch (e) {
-    res.status(500).send({ status: "error", message: e.message });
+    res.status(500).send({ message: e.message });
   }
 };
 
@@ -38,16 +38,16 @@ const updatePost = async (req, res) => {
 
     // Post doesn't exist
     if (post === null) {
-      res.status(404).send({ status: "error", message: "Not found" });
+      res.status(404).send({ message: "Not found" });
       return;
     }
 
     // Update post data
     post.dataValues = { ...post.dataValues, ...req.body };
     await post.save();
-    res.status(200).send({ status: "success", data: post });
+    res.status(200).send({ post });
   } catch (e) {
-    res.status(500).send({ status: "error", message: e.message });
+    res.status(500).send({ message: e.message });
   }
 };
 
@@ -58,7 +58,7 @@ const deletePost = async (req, res) => {
 
     // Post doesn't exist
     if (post === null) {
-      res.status(404).send({ status: "error", message: "Not found" });
+      res.status(404).send({ message: "Not found" });
       return;
     }
 
@@ -68,9 +68,9 @@ const deletePost = async (req, res) => {
         id: post.id,
       },
     });
-    res.status(200).send({ status: "success", data: post });
+    res.status(200).send({ post });
   } catch (e) {
-    res.status(500).send({ status: "error", message: e.message });
+    res.status(500).send({ message: e.message });
   }
 };
 

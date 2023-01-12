@@ -39,6 +39,7 @@ describe("Comment routes", () => {
 
   after(async () => {
     await db.Post.destroy({ truncate: true });
+    chaiAppServer.close();
   });
 
   /* ---------------------------- GET POST COMMENTS --------------------------- */
@@ -46,7 +47,6 @@ describe("Comment routes", () => {
     it("It should return 404 not found when post doesn't exist", (done) => {
       chaiAppServer.get("/api/posts/200/comments").end((err, res) => {
         res.should.have.status(404);
-        res.body.should.have.property("status").eql("error");
         res.body.should.have.property("message");
         done();
       });
@@ -56,8 +56,8 @@ describe("Comment routes", () => {
     it("It should return an empty list of comments", (done) => {
       chaiAppServer.get("/api/posts/100/comments").end((err, res) => {
         res.should.have.status(200);
-        res.body.should.have.property("status").eql("success");
-        res.body.should.have.property("data").instanceOf(Array).lengthOf(0);
+        res.body.should.have.property("postId").eql(100);
+        res.body.should.have.property("comments").instanceOf(Array).lengthOf(0);
         done();
       });
     });
@@ -74,7 +74,6 @@ describe("Comment routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(403);
-          res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message");
           done();
         });
@@ -87,7 +86,6 @@ describe("Comment routes", () => {
         .set("x-access-token", ADMIN_TOKEN)
         .end((err, res) => {
           res.should.have.status(404);
-          res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message");
           done();
         });
@@ -104,7 +102,6 @@ describe("Comment routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(404);
-          res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message");
           done();
         });
@@ -121,8 +118,10 @@ describe("Comment routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(201);
-          res.body.should.have.property("status").eql("success");
-          res.body.should.have.property("data");
+          res.body.should.have.property("comment");
+          res.body.comment.should.have.property("content").eql(body.content);
+          res.body.comment.should.have.property("postId").eql(100);
+          res.body.comment.should.have.property("userId").eql(2);
           done();
         });
     });
@@ -133,9 +132,11 @@ describe("Comment routes", () => {
     it("It should get comment details", (done) => {
       chaiAppServer.get("/api/posts/100/comments/1").end((err, res) => {
         res.should.have.status(200);
-        res.body.should.have.property("status").eql("success");
-        res.body.should.have.property("data");
-        res.body.data.should.have.property("content").eql("No comment");
+        res.body.should.have.property("comment");
+        res.body.comment.should.have.property("id").eql(1);
+        res.body.comment.should.have.property("content").eql("No comment");
+        res.body.comment.should.have.property("postId").eql(100);
+        res.body.comment.should.have.property("userId").eql(2);
         done();
       });
     });
@@ -153,9 +154,11 @@ describe("Comment routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(200);
-          res.body.should.have.property("status").eql("success");
-          res.body.should.have.property("data");
-          res.body.data.should.have.property("content").eql("New comment");
+          res.body.should.have.property("comment");
+          res.body.comment.should.have.property("id").eql(1);
+          res.body.comment.should.have.property("content").eql("New comment");
+          res.body.comment.should.have.property("postId").eql(100);
+          res.body.comment.should.have.property("userId").eql(2);
           done();
         });
     });
@@ -169,7 +172,18 @@ describe("Comment routes", () => {
         .set("x-access-token", USER_TOKEN)
         .end((err, res) => {
           res.should.have.status(403);
-          res.body.should.have.property("status").eql("error");
+          res.body.should.have.property("message");
+          done();
+        });
+    });
+
+    /* -------------------------------------------------------------------------- */
+    it("It should fail if comment doesnt exist", (done) => {
+      chaiAppServer
+        .delete("/api/posts/100/comments/101")
+        .set("x-access-token", USER_TOKEN)
+        .end((err, res) => {
+          res.should.have.status(404);
           res.body.should.have.property("message");
           done();
         });
@@ -182,8 +196,7 @@ describe("Comment routes", () => {
         .set("x-access-token", ADMIN_TOKEN)
         .end((err, res) => {
           res.should.have.status(200);
-          res.body.should.have.property("status").eql("success");
-          res.body.should.have.property("data");
+          res.body.should.have.property("comment");
           done();
         });
     });

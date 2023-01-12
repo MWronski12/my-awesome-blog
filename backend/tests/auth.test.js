@@ -10,10 +10,25 @@ const chaiAppServer = chai.request(app).keepOpen();
 // Tokens
 let ADMIN_TOKEN;
 let MODERATOR_TOKEN;
-let USER_TOKEN;
 let EXPIRED_TOKEN;
 
 describe("Public auth routes", () => {
+  /* ---------------------------- PREPARE FOR TESTS --------------------------- */
+  before(() => {
+    ADMIN_TOKEN = jwt.sign(
+      { exp: Math.floor(Date.now() / 1000) + 60, userId: 1 }, // ADMIN
+      process.env.JWT_SECRET
+    );
+    MODERATOR_TOKEN = jwt.sign(
+      { exp: Math.floor(Date.now() / 1000) + 60, userId: 2 }, // MODERATOR
+      process.env.JWT_SECRET
+    );
+    EXPIRED_TOKEN = jwt.sign(
+      { exp: Math.floor(Date.now() / 1000) - 60, userId: 1 }, // EXPIRED ADMIN
+      process.env.JWT_SECRET
+    );
+  });
+
   /* --------------------------------- SIGNUP --------------------------------- */
   describe("/POST signup", () => {
     it("It should fail to register a new user without password field.", (done) => {
@@ -27,7 +42,6 @@ describe("Public auth routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(404);
-          res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message");
         });
       done();
@@ -46,7 +60,6 @@ describe("Public auth routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(409);
-          res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message");
         });
       done();
@@ -65,7 +78,6 @@ describe("Public auth routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(409);
-          res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message");
         });
       done();
@@ -84,31 +96,7 @@ describe("Public auth routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(201);
-          res.body.should.have.property("status").eql("success");
           res.body.should.have.property("message");
-          res.body.should.have.property("data");
-          done();
-        });
-    });
-
-    /* -------------------------------------------------------------------------- */
-    it("It should obtain a valid token after signup", (done) => {
-      const body = {
-        username: "newuser1",
-        email: "newuser1@gmail.com",
-        password: "user1234",
-      };
-      chaiAppServer
-        .post("/api/auth/signup")
-        .send(body)
-        .end((err, res) => {
-          res.should.have.status(201);
-          res.body.should.have.property("status").eql("success");
-          res.body.should.have.property("message");
-          res.body.should.have.property("data");
-          jwt.verify(res.body.data, process.env.JWT_SECRET, (err, decoded) => {
-            assert.isNull(err);
-          });
           done();
         });
     });
@@ -126,7 +114,6 @@ describe("Public auth routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(404);
-          res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message");
           done();
         });
@@ -144,7 +131,6 @@ describe("Public auth routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(404);
-          res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message");
           done();
         });
@@ -162,7 +148,6 @@ describe("Public auth routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(403);
-          res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message");
           done();
         });
@@ -180,16 +165,16 @@ describe("Public auth routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(200);
-          res.body.should.have.property("status").eql("success");
-          res.body.should.have.property("data");
+          res.body.should.have.property("message");
+          res.body.should.have.property("user");
+          res.body.user.should.have.property("id").eql(3);
+          res.body.user.should.have.property("username").eql("user");
+          res.body.user.should.have.property("email").eql("user");
+          res.body.user.should.have.property("roles").eql(["USER"]);
           const decoded = JSON.parse(
-            Buffer.from(res.body.data.split(".")[1], "base64")
+            Buffer.from(res.body.token.split(".")[1], "base64")
           );
           decoded.should.have.property("userId").eql(3);
-          decoded.should.have.property("username").eql("user");
-          decoded.should.have.property("email").eql("user");
-          decoded.should.have.property("roles");
-          decoded.roles[0].should.be.equal("USER");
           done();
         });
     });
@@ -206,16 +191,16 @@ describe("Public auth routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(200);
-          res.body.should.have.property("status").eql("success");
-          res.body.should.have.property("data");
+          res.body.should.have.property("message");
+          res.body.should.have.property("user");
+          res.body.user.should.have.property("id").eql(3);
+          res.body.user.should.have.property("username").eql("user");
+          res.body.user.should.have.property("email").eql("user");
+          res.body.user.should.have.property("roles").eql(["USER"]);
           const decoded = JSON.parse(
-            Buffer.from(res.body.data.split(".")[1], "base64")
+            Buffer.from(res.body.token.split(".")[1], "base64")
           );
           decoded.should.have.property("userId").eql(3);
-          decoded.should.have.property("username").eql("user");
-          decoded.should.have.property("email").eql("user");
-          decoded.should.have.property("roles");
-          decoded.roles[0].should.be.equal("USER");
           done();
         });
     });
@@ -223,30 +208,11 @@ describe("Public auth routes", () => {
 });
 
 describe("Private auth routes", () => {
-  before(() => {
-    ADMIN_TOKEN = jwt.sign(
-      { exp: Math.floor(Date.now() / 1000) + 60, userId: 1 }, // ADMIN
-      process.env.JWT_SECRET
-    );
-    MODERATOR_TOKEN = jwt.sign(
-      { exp: Math.floor(Date.now() / 1000) + 60, userId: 2 }, // MODERATOR
-      process.env.JWT_SECRET
-    );
-    USER_TOKEN = jwt.sign(
-      { exp: Math.floor(Date.now() / 1000) + 60, userId: 3 }, // USER
-      process.env.JWT_SECRET
-    );
-    EXPIRED_TOKEN = jwt.sign(
-      { exp: Math.floor(Date.now() / 1000) - 60, userId: 1 }, // EXPIRED ADMIN
-      process.env.JWT_SECRET
-    );
-  });
   /* ----------------------------- GRANT-ROLE ---------------------------- */
   describe("/POST grant-role", () => {
     it("It should fail when no token provided", (done) => {
       chaiAppServer.post("/api/auth/grant-role").end((err, res) => {
         res.should.have.status(403);
-        res.body.should.have.property("status").eql("error");
         res.body.should.have.property("message");
         done();
       });
@@ -259,7 +225,6 @@ describe("Private auth routes", () => {
         .set("x-access-token", "false token")
         .end((err, res) => {
           res.should.have.status(401);
-          res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message").eql("jwt malformed");
           done();
         });
@@ -272,7 +237,6 @@ describe("Private auth routes", () => {
         .set("x-access-token", EXPIRED_TOKEN)
         .end((err, res) => {
           res.should.have.status(401);
-          res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message").eql("jwt expired");
           done();
         });
@@ -285,7 +249,6 @@ describe("Private auth routes", () => {
         .set("x-access-token", MODERATOR_TOKEN)
         .end((err, res) => {
           res.should.have.status(403);
-          res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message");
           done();
         });
@@ -303,7 +266,6 @@ describe("Private auth routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(404);
-          res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message");
           done();
         });
@@ -322,7 +284,6 @@ describe("Private auth routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(404);
-          res.body.should.have.property("status").eql("error");
           res.body.should.have.property("message");
           done();
         });
@@ -341,12 +302,15 @@ describe("Private auth routes", () => {
         .send(body)
         .end((err, res) => {
           res.should.have.status(200);
-          res.body.should.have.property("status").eql("success");
           res.body.should.have
             .property("message")
             .eql("ADMIN role granted to user");
           done();
         });
     });
+  });
+
+  after(() => {
+    chaiAppServer.close();
   });
 });
