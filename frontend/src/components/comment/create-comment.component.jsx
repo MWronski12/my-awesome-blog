@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import blogService from "../../services/blog.service";
 import { useGlobalState } from "../../store";
 
-export default function AddComment({ postId, newCommentCallback }) {
+export default function CreateComment({ postId, newCommentCallback }) {
   const [user, setUser] = useGlobalState("user");
   const [state, setState] = useState({ comment: "" });
 
   function onChange(e) {
-    setState({ ...state, comment: e.target.value });
+    setState({ comment: e.target.value });
   }
 
   function onSubmit(e) {
@@ -20,14 +20,17 @@ export default function AddComment({ postId, newCommentCallback }) {
         content: state.comment,
       })
       .then((response) => {
-        setState({ ...state, comment: "" });
+        setState({ comment: "" });
         newCommentCallback();
+      })
+      .catch((error) => {
+        console.log(error.response.data.message);
       });
   }
 
   return (
     <div>
-      {state.user && (
+      {user && (
         <form className="w-100 my-3 d-flex flex-column" onSubmit={onSubmit}>
           <label htmlFor="comment" className="form-label">
             Add Comment
@@ -35,12 +38,12 @@ export default function AddComment({ postId, newCommentCallback }) {
           <span className="d-flex">
             <input
               type="text"
-              className="form-control flex-grow-1 mr-3"
+              className="form-control flex-grow-1"
               id="comment"
               onChange={onChange}
               value={state.comment}
             />
-            <button type="submit" className="btn btn-secondary">
+            <button type="submit" className={"btn btn-secondary disabled"}>
               Submit
             </button>
           </span>

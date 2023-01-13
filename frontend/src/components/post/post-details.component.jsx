@@ -4,11 +4,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useGlobalState } from "../../store";
 
 // Components
-import CommentSection from "../comment/comment-section.component";
-import PostListItem from "./post-list-item.component";
+import CommentList from "../comment/comment-list.component";
 
 // Services
 import blogService from "../../services/blog.service";
+import authService from "../../services/auth.service";
+import PostListItem from "./post-list-item.component";
 
 export default function PostDetails() {
   const { postId } = useParams();
@@ -19,7 +20,7 @@ export default function PostDetails() {
     blogService
       .getPost(postId)
       .then((response) => {
-        setState(response.data.post);
+        setState({ post: response.data.post });
       })
       .catch((error) => {
         error.response.message;
@@ -29,23 +30,23 @@ export default function PostDetails() {
   const navigate = useNavigate();
 
   function onDelete() {
-    blogService.deletePost(id).then((response) => {
+    blogService.deletePost(state.post.id).then((response) => {
       navigate("/awesome-blog");
     });
   }
 
   return (
     <div className="mt-5">
-      {user && user.roles.includes("ADMIN") && (
+      {authService.isAdminOrModerator(user) && (
         <button className="btn btn-danger" onClick={onDelete}>
-          Delete
+          Delete Post
         </button>
-      )}{" "}
+      )}
       {state.post && (
-        <>
-          <PostListItem post={state.post} />
-          <CommentSection postId={post.id} />
-        </>
+        <div>
+          <PostListItem post={state.post} shortenContent={false} />
+          <CommentList postId={state.post.id} />
+        </div>
       )}
     </div>
   );

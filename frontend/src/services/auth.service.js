@@ -15,7 +15,10 @@ class AuthService {
       import.meta.env.VITE_API_BASE_URL + "/auth/signin",
       { username, password }
     );
-    localStorage.setItem("user", response.data.token);
+    localStorage.setItem(
+      "user",
+      JSON.stringify({ data: response.data.user, token: response.data.token })
+    );
     return response;
   }
 
@@ -24,7 +27,14 @@ class AuthService {
   }
 
   getToken() {
-    return localStorage.getItem("user");
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user) {
+      return user.token;
+    }
+  }
+
+  getUser() {
+    return JSON.parse(localStorage.getItem("user"));
   }
 
   isAdminOrModerator(user) {

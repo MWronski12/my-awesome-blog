@@ -15,18 +15,19 @@ const parseJwt = (token) => {
 // Component that checks if token didn't expire on every new URL
 export default function AuthVerify() {
   let location = useLocation();
-
   const [user, setUser] = useGlobalState("user");
 
   useEffect(() => {
     {
-      const token = authService.getToken();
+      const user = authService.getUser();
 
-      if (token) {
-        const decodedJwt = parseJwt(token);
+      if (user) {
+        const decodedJwt = parseJwt(user.token);
         if (decodedJwt && decodedJwt.exp * 1000 < Date.now()) {
           authService.logout();
           setUser(null);
+        } else {
+          setUser(user.data);
         }
       }
     }

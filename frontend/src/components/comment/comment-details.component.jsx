@@ -1,14 +1,21 @@
 import React from "react";
+import blogService from "../../services/blog.service";
+import authService from "../../services/auth.service";
+import { useGlobalState } from "../../store";
 
-export default function Comment({ comment }) {
+export default function CommentDetails({ comment }) {
+  const [user, setUser] = useGlobalState("user");
+
   return (
     <div className="my-1">
-      {comment && username && (
+      {user && user.username && (
         <div className="d-flex flex-column">
           <span>
-            <span>{username + " "}</span>
+            <span>{}</span>
             <span className="text-muted">
-              {BlogService.formatDate(comment.createdAt)}
+              {comment.user.username +
+                " " +
+                blogService.formatDate(comment.createdAt)}
             </span>
           </span>
           <span>{comment.content}</span>
