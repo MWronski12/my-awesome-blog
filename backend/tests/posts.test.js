@@ -153,11 +153,12 @@ describe("Post routes", () => {
     });
 
     /* -------------------------------------------------------------------------- */
-    it("It should get post including its comments", (done) => {
+    it("It should get post including its author", (done) => {
       chaiAppServer.get("/api/posts/1").end((err, res) => {
         res.should.have.status(200);
         res.body.should.have.property("post").instanceOf(Object);
-        res.body.post.should.have.property("comments").lengthOf(3);
+        res.body.post.should.have.property("user").instanceOf(Object);
+        res.body.post.user.should.have.property("username");
         done();
       });
     });

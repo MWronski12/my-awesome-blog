@@ -17,6 +17,13 @@ const db = {};
 db.sequelize = new Sequelize(config);
 db.Sequelize = Sequelize;
 
+// db.sequelize.define("Comment", {
+//   author: {
+//     type: String,
+//     foreignKey: true,
+//   },
+// });
+
 // define models
 db.User = defineUser(db.sequelize);
 db.Role = defineRole(db.sequelize);

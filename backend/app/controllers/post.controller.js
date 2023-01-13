@@ -2,7 +2,11 @@ import { db } from "../models/index.js";
 
 const getAllPosts = async (req, res) => {
   try {
-    const posts = await db.Post.findAll();
+    let posts = await db.Post.findAll({
+      include: { model: db.User, attributes: ["username"] },
+    });
+
+    console.log(posts);
     res.status(200).send({ posts });
   } catch (e) {
     res.status(500).send({ message: e.message });
@@ -20,7 +24,9 @@ const createPost = async (req, res) => {
 
 const getPost = async (req, res) => {
   try {
-    const post = await db.Post.findByPk(req.params.id, { include: db.Comment });
+    const post = await db.Post.findByPk(req.params.id, {
+      include: { model: db.User, attributes: ["username"] },
+    });
     res.status(200).send({ post });
   } catch (e) {
     res.status(500).send({ message: e.message });
