@@ -5,8 +5,6 @@ const getAllPosts = async (req, res) => {
     let posts = await db.Post.findAll({
       include: { model: db.User, attributes: ["username"] },
     });
-
-    console.log(posts);
     res.status(200).send({ posts });
   } catch (e) {
     res.status(500).send({ message: e.message });

@@ -2,13 +2,17 @@ import { db } from "../models/index.js";
 
 const getPostComments = async (req, res) => {
   try {
-    const post = await db.Post.findByPk(req.params.postId, {
-      include: db.Comment,
-    });
+    const post = await db.Post.findByPk(req.params.postId);
     if (post === null) {
       return res.status(404).send({ message: "Not found" });
     }
-    res.status(200).send({ postId: post.id, comments: post.comments });
+
+    const comments = await db.Comment.findAll({
+      where: { postId: post.id },
+      include: { model: db.User, attributes: ["username"] },
+    });
+
+    res.status(200).send({ comments });
   } catch (e) {
     res.status(500).send({ message: e.message });
   }
@@ -20,11 +24,13 @@ const createComment = async (req, res) => {
     if (post === null) {
       return res.status(404).send({ message: "Not found" });
     }
+
     const comment = await db.Comment.create({
       ...req.body,
       userId: req.userId,
       postId: Number.parseInt(req.params.postId),
     });
+
     res.status(201).send({ comment });
   } catch (e) {
     res.status(500).send({ message: e.message });
