@@ -10,7 +10,7 @@ import { router } from "./app/router/index.js";
 const app = express();
 
 // CORS
-const corsOptions = { origin: process.env.CORS_URL };
+const corsOptions = { origin: process.env.NODE_CORS_URL };
 app.use(cors(corsOptions));
 
 // Logger
@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 app.use("/api", router);
 
 // app
-app.listen(process.env.PORT, () => {
+app.listen(process.env.NODE_PORT, () => {
   console.log(`App listening on port ${process.env.PORT}`);
 });
 

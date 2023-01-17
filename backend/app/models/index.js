@@ -50,7 +50,7 @@ await db.Role.bulkCreate([
 ]);
 
 // Create default accounts: (admin, admin), (moderator, moderator), (user, user)
-const salt = bcrypt.genSaltSync(Number.parseInt(process.env.SALT_ROUNDS));
+const salt = bcrypt.genSaltSync(8);
 let hash = bcrypt.hashSync("admin", salt);
 let user = await db.User.create({
   username: "admin",

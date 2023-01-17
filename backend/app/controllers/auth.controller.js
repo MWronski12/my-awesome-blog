@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 const signUp = async (req, res) => {
   try {
     // Generate password hash
-    var salt = bcrypt.genSaltSync(Number.parseInt(process.env.SALT_ROUNDS));
+    var salt = bcrypt.genSaltSync(8);
     var hash = bcrypt.hashSync(req.body.password, salt);
 
     // Insert user into DB
