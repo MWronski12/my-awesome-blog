@@ -17,13 +17,6 @@ const db = {};
 db.sequelize = new Sequelize(config);
 db.Sequelize = Sequelize;
 
-// db.sequelize.define("Comment", {
-//   author: {
-//     type: String,
-//     foreignKey: true,
-//   },
-// });
-
 // define models
 db.User = defineUser(db.sequelize);
 db.Role = defineRole(db.sequelize);
@@ -56,7 +49,7 @@ await db.Role.bulkCreate([
   { name: "USER" },
 ]);
 
-// Create default accounts
+// Create default accounts: (admin, admin), (moderator, moderator), (user, user)
 const salt = bcrypt.genSaltSync(Number.parseInt(process.env.SALT_ROUNDS));
 let hash = bcrypt.hashSync("admin", salt);
 let user = await db.User.create({

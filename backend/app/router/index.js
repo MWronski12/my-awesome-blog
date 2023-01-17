@@ -4,6 +4,7 @@ import { registerPostRoutes } from "./post.routes.js";
 import { registerCommentRoutes } from "./comment.routes.js";
 
 const router = express.Router();
+
 registerAuthRoutes(router);
 registerPostRoutes(router);
 registerCommentRoutes(router);

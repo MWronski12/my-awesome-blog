@@ -21,7 +21,7 @@ if (process.env.NODE_ENV !== "test") {
 // JSON body parser
 app.use(bodyParser.json());
 
-// Headers
+// Global headers
 app.use((req, res, next) => {
   res.header(
     "Access-Control-Allow-Headers",

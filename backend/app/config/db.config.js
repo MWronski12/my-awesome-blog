@@ -1,11 +1,11 @@
 export const dbConfig = {
   development: {
     dialect: "sqlite",
-    storage: process.env.DB_PATH,
+    storage: "db.sqlite",
   },
   test: {
     dialect: "sqlite",
-    storage: process.env.TEST_DB_PATH,
+    storage: "db_test.sqlite",
     logging: false,
   },
   production: {
