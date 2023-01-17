@@ -1,12 +1,17 @@
+// React
 import React, { useState, useEffect } from "react";
-import CreateComment from "./create-comment.component";
+
+// Components
 import CommentDetails from "./comment-details.component";
+import CreateComment from "./create-comment.component";
+
+// Services
 import BlogService from "../../services/blog.service";
 
 export default function CommentList({ postId }) {
   const [state, setState] = useState({ comments: [], newCommentEvent: 0 });
 
-  const newCommentCallback = () => {
+  const newCommentEventCallback = () => {
     setState({ ...state, newCommentEvent: state.newCommentEvent++ });
   };
 
@@ -21,10 +26,17 @@ export default function CommentList({ postId }) {
   }, [state.newCommentEvent]);
 
   return (
-    <div>
-      <CreateComment postId={postId} newCommentCallback={newCommentCallback} />
+    <div className="mb-5">
+      <CreateComment
+        postId={postId}
+        newCommentEventCallback={newCommentEventCallback}
+      />
       {state.comments.map((comment) => (
-        <CommentDetails key={comment.id} comment={comment} />
+        <CommentDetails
+          key={comment.id}
+          comment={comment}
+          newCommentEventCallback={newCommentEventCallback}
+        />
       ))}
     </div>
   );

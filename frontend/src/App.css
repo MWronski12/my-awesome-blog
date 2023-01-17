@@ -1,3 +1,7 @@
+* {
+  font-family: "Roboto", sans-serif;
+}
+
 label {
   display: block;
   margin-top: 10px;
@@ -29,4 +33,27 @@ label {
   -moz-border-radius: 50%;
   -webkit-border-radius: 50%;
   border-radius: 50%;
+}
+
+a {
+  background: linear-gradient(0deg, slateblue, slateblue) no-repeat right bottom /
+    0 var(--bg-h);
+  transition: background-size 350ms;
+  --bg-h: 100%;
+  padding-bottom: 2px;
+  --bg-h: 2px;
+}
+a:where(:hover, :focus-visible) {
+  background-size: 100% var(--bg-h);
+  background-position-x: left;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  line-height: 1;
+}
+
+.delete-comment:hover {
+  cursor: pointer;
 }

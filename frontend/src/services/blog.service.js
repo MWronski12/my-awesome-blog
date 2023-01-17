@@ -48,6 +48,14 @@ class BlogService {
     );
   }
 
+  deleteComment(postId, commentId) {
+    return axios.delete(
+      import.meta.env.VITE_API_BASE_URL +
+        `/posts/${postId}/comments/${commentId}`,
+      { headers: authHeader() }
+    );
+  }
+
   getUserName(userId) {
     return axios.get(import.meta.env.VITE_API_BASE_URL + `/users/${userId}`);
   }

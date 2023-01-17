@@ -1,6 +1,11 @@
+// React
 import React, { useState, useEffect } from "react";
-import blogService from "../../services/blog.service";
+
+// Components
 import PostListItem from "./post-list-item.component";
+
+// Services
+import blogService from "../../services/blog.service";
 
 export default function PostList() {
   const [state, setState] = useState({ posts: [] });

@@ -1,18 +1,14 @@
+// React
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import { useGlobalState } from "../../store";
+import { useNavigate } from "react-router-dom";
 
+// Services
 import AuthService from "../../services/auth.service";
 
-// Component for displaying error messages
-function ValidationError({ message }) {
-  return (
-    <div className="alert alert-danger" role="alert">
-      {message}
-    </div>
-  );
-}
+// Common
+import ValidationError from "../../common/validation-error";
 
 export default function Login() {
   // Used for displaying error messages
@@ -31,6 +27,19 @@ export default function Login() {
     handleSubmit,
     formState: { errors },
   } = useForm();
+
+  // Fom validation config
+  const validationConfig = {
+    username: {
+      required: "Username is required!",
+    },
+    email: {
+      required: "Email is required!",
+    },
+    password: {
+      required: "Password is required!",
+    },
+  };
 
   function handleLogin({ username, password }) {
     setState({
@@ -68,10 +77,10 @@ export default function Login() {
             <input
               autoFocus
               className="form-control"
-              {...register("username", { required: true })}
+              {...register("username", validationConfig.username)}
             />
-            {errors.username && errors.username.type === "required" && (
-              <ValidationError message={"This field is required!"} />
+            {errors?.username && (
+              <ValidationError message={errors.username.message} />
             )}
           </div>
 
@@ -80,12 +89,10 @@ export default function Login() {
             <input
               className="form-control"
               type="password"
-              {...register("password", {
-                required: true,
-              })}
+              {...register("password", validationConfig.password)}
             />
-            {errors.password && errors.password.type === "required" && (
-              <ValidationError message={"This field is required!"} />
+            {errors?.password && (
+              <ValidationError message={errors.password.message} />
             )}
           </div>
 

@@ -7,11 +7,12 @@ import { Routes, Route, Outlet, Link } from "react-router-dom";
 
 // Components
 import Home from "./components/home.component";
+import CreatePost from "./components/post/create-post.component";
+import PostDetails from "./components/post/post-details.component";
 import Login from "./components/user/login.component";
 import Register from "./components/user/register.component";
 import Profile from "./components/user/profile.component";
-import CreatePost from "./components/post/create-post.component";
-import PostDetails from "./components/post/post-details.component";
+
 import AuthVerify from "./common/auth-verify";
 
 // Services

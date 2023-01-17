@@ -1,6 +1,9 @@
+// React
 import React from "react";
-import authService from "../../services/auth.service";
 import { useGlobalState } from "../../store";
+
+// Services
+import authService from "../../services/auth.service";
 
 export default function Profile() {
   const [user, setUser] = useGlobalState("user");

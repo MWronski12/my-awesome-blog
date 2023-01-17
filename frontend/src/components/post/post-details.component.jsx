@@ -4,12 +4,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useGlobalState } from "../../store";
 
 // Components
+import PostListItem from "./post-list-item.component";
 import CommentList from "../comment/comment-list.component";
 
 // Services
 import blogService from "../../services/blog.service";
 import authService from "../../services/auth.service";
-import PostListItem from "./post-list-item.component";
 
 export default function PostDetails() {
   const { postId } = useParams();
@@ -37,14 +37,14 @@ export default function PostDetails() {
 
   return (
     <div className="mt-5">
-      {authService.isAdminOrModerator(user) && (
-        <button className="btn btn-danger" onClick={onDelete}>
-          Delete Post
-        </button>
-      )}
       {state.post && (
         <div>
           <PostListItem post={state.post} shortenContent={false} />
+          {authService.isAdminOrModerator(user) && (
+            <button className="btn btn-danger" onClick={onDelete}>
+              Delete Post
+            </button>
+          )}
           <CommentList postId={state.post.id} />
         </div>
       )}

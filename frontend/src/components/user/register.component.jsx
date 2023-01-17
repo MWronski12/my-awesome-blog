@@ -1,17 +1,14 @@
+// React
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useGlobalState } from "../../store";
 
+// Services
 import AuthService from "../../services/auth.service";
 
-function ValidationError({ message }) {
-  return (
-    <div className="alert alert-danger" role="alert">
-      {message}
-    </div>
-  );
-}
+// Common
+import ValidationError from "../../common/validation-error";
 
 export default function Register() {
   // Used for displaying error messages
@@ -30,6 +27,33 @@ export default function Register() {
     handleSubmit,
     formState: { errors },
   } = useForm({});
+
+  // Fom validation config
+  const validationConfig = {
+    username: {
+      required: "Username is required!",
+    },
+    email: {
+      required: "Email is required!",
+      pattern: {
+        value:
+          /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
+        message: "That is not a valid email address!",
+      },
+    },
+    password: {
+      required: "Password is required!",
+      pattern: {
+        value: /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/,
+        message:
+          "Password has to contain at least one number and a special character [!@#$%^&*]",
+      },
+      minLength: {
+        value: 8,
+        message: "Password has to be at least 8 characters long!",
+      },
+    },
+  };
 
   function handleRegister({ username, email, password }) {
     setState({
@@ -77,15 +101,10 @@ export default function Register() {
               <input
                 autoFocus
                 className="form-control"
-                {...register("username", { required: true, maxLength: 40 })}
+                {...register("username", validationConfig.username)}
               />
-              {errors.username && errors.username.type === "required" && (
-                <ValidationError message={"This field is required!"} />
-              )}
-              {errors.username && errors.username.type === "maxLength" && (
-                <ValidationError
-                  message={"Username must be at most 40 characters long!"}
-                />
+              {errors?.username && (
+                <ValidationError message={errors.username.message} />
               )}
             </div>
 
@@ -93,23 +112,10 @@ export default function Register() {
               <label htmlFor="email">Email</label>
               <input
                 className="form-control"
-                {...register("email", {
-                  required: true,
-                  maxLength: 40,
-                  pattern:
-                    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
-                })}
+                {...register("email", validationConfig.email)}
               />
-              {errors.email && errors.email.type === "required" && (
-                <ValidationError message={"This field is required!"} />
-              )}
-              {errors.email && errors.email.type === "maxLength" && (
-                <ValidationError
-                  message={"Email must be at most 40 characters long!"}
-                />
-              )}
-              {errors.email && errors.email.type === "pattern" && (
-                <ValidationError message={"That is not a valid email!"} />
+              {errors?.email && (
+                <ValidationError message={errors.email.message} />
               )}
             </div>
 
@@ -118,24 +124,10 @@ export default function Register() {
               <input
                 className="form-control"
                 type="password"
-                {...register("password", {
-                  required: true,
-                  minLength: 8,
-                  maxLength: 20,
-                })}
+                {...register("password", validationConfig.password)}
               />
-              {errors.password && errors.password.type === "required" && (
-                <ValidationError message={"This field is required!"} />
-              )}
-              {errors.password && errors.password.type === "minLength" && (
-                <ValidationError
-                  message={"Password must be at least 8 characters long!"}
-                />
-              )}
-              {errors.password && errors.password.type === "maxLength" && (
-                <ValidationError
-                  message={"Password must be at most 20 characters long!"}
-                />
+              {errors?.password && (
+                <ValidationError message={errors.password.message} />
               )}
             </div>
 

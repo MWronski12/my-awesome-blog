@@ -1,52 +1,71 @@
-import React, { useState } from "react";
-import blogService from "../../services/blog.service";
+// React
+import React from "react";
 import { useGlobalState } from "../../store";
+import { useForm } from "react-hook-form";
 
-export default function CreateComment({ postId, newCommentCallback }) {
+// Services
+import blogService from "../../services/blog.service";
+
+// Common
+import ValidationError from "../../common/validation-error";
+
+export default function CreateComment({ postId, newCommentEventCallback }) {
   const [user, setUser] = useGlobalState("user");
-  const [state, setState] = useState({ comment: "" });
 
-  function onChange(e) {
-    setState({ comment: e.target.value });
-  }
+  // Form validation hook
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm();
 
-  function onSubmit(e) {
-    e.preventDefault();
+  // Fom validation config
+  const validationConfig = {
+    comment: {
+      required: "Cannot post an empty comment!",
+    },
+  };
 
+  function onSubmit({ comment }) {
     blogService
       .createComment({
         userId: user.id,
         postId: postId,
-        content: state.comment,
+        content: comment,
       })
       .then((response) => {
-        setState({ comment: "" });
-        newCommentCallback();
+        newCommentEventCallback();
       })
       .catch((error) => {
         console.log(error.response.data.message);
       });
+
+    reset();
   }
 
   return (
     <div>
       {user && (
-        <form className="w-100 my-3 d-flex flex-column" onSubmit={onSubmit}>
+        <form
+          className="w-100 my-3 d-flex flex-column"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <label htmlFor="comment" className="form-label">
-            Add Comment
+            <h5>Add Comment:</h5>
           </label>
           <span className="d-flex">
             <input
-              type="text"
               className="form-control flex-grow-1"
-              id="comment"
-              onChange={onChange}
-              value={state.comment}
+              {...register("comment", validationConfig.comment)}
             />
-            <button type="submit" className={"btn btn-secondary disabled"}>
+            <button type="submit" className="btn btn-secondary">
               Submit
             </button>
           </span>
+          {errors?.comment && (
+            <ValidationError message={errors.comment.message} />
+          )}
         </form>
       )}
     </div>

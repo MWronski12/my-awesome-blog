@@ -1,16 +1,13 @@
+// React
 import React, { useState } from "react";
-import blogService from "../../services/blog.service";
 import { useNavigate } from "react-router-dom";
 import { useGlobalState } from "../../store";
 
-// Component for displaying error messages
-function ValidationError({ message }) {
-  return (
-    <div className="alert alert-danger mt-3" role="alert">
-      {message}
-    </div>
-  );
-}
+// Services
+import blogService from "../../services/blog.service";
+
+// Common
+import ValidationError from "../../common/validation-error";
 
 export default function CreatePost() {
   const [user, setUser] = useGlobalState("user");
