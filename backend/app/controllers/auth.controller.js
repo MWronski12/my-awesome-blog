@@ -47,7 +47,7 @@ const signIn = async (req, res) => {
 
     // Generate JWT token with user data
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXP_TIME,
+      expiresIn: "24h",
     });
 
     res.status(200).send({

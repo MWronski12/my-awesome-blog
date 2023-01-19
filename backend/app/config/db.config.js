@@ -9,10 +9,17 @@ export const dbConfig = {
     logging: false,
   },
   production: {
-    username: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DB_NAME,
-    host: process.env.MYSQL_HOST,
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    database: process.env.DB_NAME,
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
     dialect: "mysql",
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
+    }
   },
 };

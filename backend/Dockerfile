@@ -1,7 +1,7 @@
-FROM node:18
+FROM node:19-alpine
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /backend
 
 # Install app dependencies
 COPY package*.json ./
@@ -10,5 +10,5 @@ RUN npm ci --only=production
 # Bundle app source
 COPY . .
 
-EXPOSE 8080
-CMD ["npm", "start"]
+EXPOSE 8081
+CMD npm start
