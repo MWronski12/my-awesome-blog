@@ -15,7 +15,7 @@ export default function Bio() {
           Simple project showcasing my knowledge of authentication mechanisms
           using JWT tokens and creating fullstack CRUD applications! Check out
           the{" "}
-          <a href="https://github.com/MWronski12/awesome-blog/" target="_blank">
+          <a class="font-weight-bold" href="https://github.com/MWronski12/my-awesome-blog/" target="_blank">
             source code
           </a>{" "}
           to see how it's built!

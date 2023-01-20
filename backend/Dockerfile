@@ -1,14 +1,14 @@
-FROM node:19-alpine
+FROM node:18
 
 # Create app directory
 WORKDIR /backend
 
 # Install app dependencies
 COPY package*.json ./
-RUN npm i
+RUN npm ci --omit=dev
 
 # Bundle app source
 COPY . .
 
-EXPOSE 8081
+EXPOSE $BACKEND_DOCKER_PORT
 CMD npm start

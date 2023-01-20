@@ -42,16 +42,13 @@ a {
   --bg-h: 100%;
   padding-bottom: 2px;
   --bg-h: 2px;
+  text-decoration: none;
+  color: inherit;
+  line-height: 1;
 }
 a:where(:hover, :focus-visible) {
   background-size: 100% var(--bg-h);
   background-position-x: left;
-}
-
-a {
-  text-decoration: none;
-  color: inherit;
-  line-height: 1;
 }
 
 .delete-comment:hover {

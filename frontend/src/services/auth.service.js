@@ -1,9 +1,10 @@
 import axios from "axios";
-import { Buffer } from "buffer";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 class AuthService {
   register(username, email, password) {
-    return axios.post(import.meta.env.VITE_API_BASE_URL + "/auth/signup", {
+    return axios.post(API_BASE_URL + "/api/auth/signup", {
       username,
       email,
       password,
@@ -11,10 +12,10 @@ class AuthService {
   }
 
   async login(username, password) {
-    const response = await axios.post(
-      import.meta.env.VITE_API_BASE_URL + "/auth/signin",
-      { username, password }
-    );
+    const response = await axios.post(API_BASE_URL + "/api/auth/signin", {
+      username,
+      password,
+    });
     localStorage.setItem(
       "user",
       JSON.stringify({ data: response.data.user, token: response.data.token })

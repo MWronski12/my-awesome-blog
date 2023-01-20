@@ -1,33 +1,32 @@
 import axios from "axios";
 import authHeader from "./auth-header";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 class BlogService {
   getPost(id) {
-    return axios.get(import.meta.env.VITE_API_BASE_URL + `/posts/${id}`);
+    return axios.get(API_BASE_URL + `/api/posts/${id}`);
   }
 
   getAllPosts() {
-    return axios.get(import.meta.env.VITE_API_BASE_URL + `/posts`);
+    return axios.get(API_BASE_URL + `/api/posts`);
   }
 
   createPost(post) {
-    return axios.post(import.meta.env.VITE_API_BASE_URL + "/posts", post, {
+    return axios.post(API_BASE_URL + "/api/posts", post, {
       headers: authHeader(),
     });
   }
 
   deletePost(postId) {
-    return axios.delete(
-      import.meta.env.VITE_API_BASE_URL + `/posts/${postId}`,
-      {
-        headers: authHeader(),
-      }
-    );
+    return axios.delete(API_BASE_URL + `/api/posts/${postId}`, {
+      headers: authHeader(),
+    });
   }
 
   createComment(comment) {
     return axios.post(
-      import.meta.env.VITE_API_BASE_URL + `/posts/${comment.postId}/comments`,
+      API_BASE_URL + `/api/posts/${comment.postId}/comments`,
       comment,
       {
         headers: authHeader(),
@@ -37,27 +36,19 @@ class BlogService {
 
   getComment(postId, commentId) {
     return axios.get(
-      import.meta.env.VITE_API_BASE_URL +
-        `/posts/${postId}/comments/${commentId}`
+      API_BASE_URL + `/api/posts/${postId}/comments/${commentId}`
     );
   }
 
   getPostComments(postId) {
-    return axios.get(
-      import.meta.env.VITE_API_BASE_URL + `/posts/${postId}/comments`
-    );
+    return axios.get(API_BASE_URL + `/api/posts/${postId}/comments`);
   }
 
   deleteComment(postId, commentId) {
     return axios.delete(
-      import.meta.env.VITE_API_BASE_URL +
-        `/posts/${postId}/comments/${commentId}`,
+      API_BASE_URL + `/api/posts/${postId}/comments/${commentId}`,
       { headers: authHeader() }
     );
-  }
-
-  getUserName(userId) {
-    return axios.get(import.meta.env.VITE_API_BASE_URL + `/users/${userId}`);
   }
 
   formatDate(dateString) {

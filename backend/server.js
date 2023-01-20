@@ -10,7 +10,7 @@ import { router } from "./app/router/index.js";
 const app = express();
 
 // CORS
-const corsOptions = { origin: process.env.NODE_CORS_URL || "http://localhost:5173" };
+const corsOptions = { origin: process.env.CLIENT_ORIGIN || "http://localhost:5173" };
 app.use(cors(corsOptions));
 
 // Logger
@@ -34,8 +34,8 @@ app.use((req, res, next) => {
 app.use("/api", router);
 
 // app
-app.listen(process.env.NODE_DOCKER_PORT || 8081, () => {
-  console.log(`App listening on port ${process.env.NODE_DOCKER_PORT || 8081}`);
+app.listen(process.env.PORT || 8080, () => {
+  console.log(`App listening on port ${process.env.PORT || 8080}`);
 });
 
 export { app };

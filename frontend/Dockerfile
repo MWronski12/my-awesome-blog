@@ -1,21 +1,20 @@
 # Stage 1
-FROM node:19-alpine as build-stage
+FROM node:18 as node
 
 WORKDIR /frontend
 COPY package*.json .
-RUN npm ci
+RUN npm ci --ommit=dev
 COPY . .
 
-ARG VITE_API_BASE_URL
-ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
-ENV NODE_ENV=production
+ARG API_BASE_URL
+RUN echo VITE_API_BASE_URL=$API_BASE_URL > .env
 
 RUN npm run build
 
 # Stage 2
-FROM nginx:1.17.0-alpine
-
-COPY --from=build-stage /frontend/build /usr/share/nginx/html
+FROM nginx:alpine
+WORKDIR /usr/share/nginx/html
+COPY --from=node /frontend/dist .
 EXPOSE $FRONTEND_DOCKER_PORT
-
-CMD nginx -g 'daemon off;'
+# run nginx with global directives and daemon off
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
