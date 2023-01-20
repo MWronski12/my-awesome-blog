@@ -3,6 +3,7 @@ version: '3.8'
 services: 
     mysqldb:
         image: mysql:5.7
+        container_name: mysqldb
         restart: unless-stopped
         env_file: ./.env
         environment:
@@ -18,7 +19,9 @@ services:
     backend:
         depends_on:
             - mysqldb
-        build: ./backend
+        # build: ./backend
+        image: szekler/my-awesome-blog-backend
+        container_name: backend
         restart: unless-stopped
         env_file: ./.env
         ports: 
@@ -41,9 +44,11 @@ services:
         depends_on:
             - backend
         build:
-            context: ./frontend
+            # context: ./frontend
             args:
                 - API_BASE_URL=$CLIENT_API_BASE_URL
+        image: szekler/my-awesome-blog-frontend
+        container_name: frontend
         ports:
             - $FRONTEND_LOCAL_PORT:$FRONTEND_DOCKER_PORT
         networks:
@@ -51,6 +56,11 @@ services:
 
 volumes:
   db:
+    driver: azure_file
+    driver_opts:
+      share_name: mysqldb
+      storage_account_name: myawesomeblog
+    
 
 networks:
   backend:
