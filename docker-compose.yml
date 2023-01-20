@@ -19,8 +19,8 @@ services:
     backend:
         depends_on:
             - mysqldb
-        # build: ./backend
-        image: szekler/my-awesome-blog-backend
+        build: ./backend
+        # image: szekler/my-awesome-blog-backend
         container_name: backend
         restart: unless-stopped
         env_file: ./.env
@@ -44,10 +44,10 @@ services:
         depends_on:
             - backend
         build:
-            # context: ./frontend
+            context: ./frontend
             args:
                 - API_BASE_URL=$CLIENT_API_BASE_URL
-        image: szekler/my-awesome-blog-frontend
+        # image: szekler/my-awesome-blog-frontend
         container_name: frontend
         ports:
             - $FRONTEND_LOCAL_PORT:$FRONTEND_DOCKER_PORT
