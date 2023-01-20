@@ -1,5 +1,5 @@
 # Stage 1
-FROM node:18 as node
+FROM node:18-alpine as node
 
 WORKDIR /frontend
 COPY package*.json .

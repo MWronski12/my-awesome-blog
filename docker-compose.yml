@@ -31,7 +31,7 @@ services:
             - DB_PORT=$MYSQLDB_DOCKER_PORT
 
             - CLIENT_ORIGIN=$CLIENT_ORIGIN
-            - JWT_SECRET=191817161514131211
+            - JWT_SECRET=$JWT_SECRET
             - PORT=$BACKEND_DOCKER_PORT
         networks:
             - backend
