@@ -15,6 +15,8 @@ RUN npm run build
 FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
 COPY --from=node /frontend/dist .
-EXPOSE $FRONTEND_DOCKER_PORT
+
+EXPOSE 80
+
 # run nginx with global directives and daemon off
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
