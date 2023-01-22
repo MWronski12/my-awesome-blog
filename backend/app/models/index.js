@@ -28,11 +28,11 @@ db.Role.belongsToMany(db.User, { through: "userroles", timestamps: false });
 db.User.belongsToMany(db.Role, { through: "userroles", timestamps: false });
 
 // User-Post one-to-many
-db.User.hasMany(db.Post);
+db.User.hasMany(db.Post, { onDelete: "NO ACTION" });
 db.Post.belongsTo(db.User);
 
 // User-Comment one-to-many
-db.User.hasMany(db.Comment);
+db.User.hasMany(db.Comment, { onDelete: "NO ACTION" });
 db.Comment.belongsTo(db.User);
 
 // Post-Comment one-to-many
