@@ -11,14 +11,14 @@ RUN npm ci --omit=dev
 COPY . .
 
 # Env variables
-ENV DB_HOST localhost
-ENV DB_USER root
-ENV DB_PASSWORD 123456
+ENV DB_HOST my-awesome-blog.database.windows.net
+ENV DB_USER szekler
+ENV DB_PASSWORD mArvinm0d345
 ENV DB_NAME my_awesome_blog_db
-ENV DB_PORT 3306
+ENV DB_PORT 1433
 
-ENV CLIENT_ORIGIN http://localhost
-ENV JWT_SECRET Ptaki latają kluczem
+ENV CLIENT_ORIGIN https://my-awesome-blog.azurewebsites.net
+ENV JWT_SECRET "Poniedziałki bywają okrutne"
 ENV PORT 8080
 
 EXPOSE $PORT

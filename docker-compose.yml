@@ -18,7 +18,7 @@ services:
         # depends_on:
         #     - mysqldb
         build: ./backend
-        # image: szekler/my-awesome-blog-backend
+        image: szekler/my-awesome-blog-backend
         container_name: backend
         restart: unless-stopped
         env_file: ./.env
