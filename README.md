@@ -1,13 +1,7 @@
 ## Simple NodeJS blog application using JWT for authentication
 
-### How to start the app
+### How to start the app locally:
 
-##### with docker-compose:
-- `git clone https://github.com/MWronski12/my-awesome-blog`
-- docker-compose up
-
-
-##### or locally with npm:
 - `git clone https://github.com/MWronski12/my-awesome-blog`
 - `cd backend`
 - `npm i`
