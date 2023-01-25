@@ -1,0 +1,55 @@
+name: Deploy on Azure
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      
+env:
+  AZURE_WEBAPP_NAME: my-awesome-blog-backend
+  AZURE_WEBAPP_PACKAGE_PATH: ./backend
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      
+      - name: Install dependencies
+        run: npm ci --omit=dev
+        working-directory: backend
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:    
+      - name: Deploy to Azure Web Apps
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          slot-name: production
+          publish-profile: ${{ secrets.BLOG_AZURE_PUBLISH_PROFILE }}
+          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          
+      - name: Set environment variables
+        uses: azure/webapps-set-env@v1
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          slot-name: production
+          env: |
+            DB_HOST='my-awesome-blog.database.windows.net'
+            DB_USER='szekler'
+            DB_PASSWORD=${{ secrets.BLOG_DB_PASSWORD }}
+            DB_NAME='my_awesome_blog_db'
+            DB_PORT=1433
+            CLIENT_ORIGIN='https://my-awesome-blog.azurewebsites.net'
+            JWT_SECRET=${{ secrets.BLOG_JWT_SECRET }}
+            PORT=8080

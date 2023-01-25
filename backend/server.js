@@ -7,6 +7,8 @@ import logger from "morgan";
 import cors from "cors";
 import { router } from "./app/router/index.js";
 
+console.log(process.env.DB_HOST)
+
 const app = express();
 
 // CORS
