@@ -19,7 +19,10 @@ services:
     backend:
         depends_on:
             - mysqldb
-        # build: ./backend
+        build: 
+            context: ./backend
+            args:
+                - PORT=$BACKEND_DOCKER_PORT
         image: szekler/my-awesome-blog-backend
         container_name: backend
         restart: unless-stopped
@@ -38,30 +41,21 @@ services:
             - PORT=$BACKEND_DOCKER_PORT
         networks:
             - backend
-            - frontend
 
     frontend:
         depends_on:
             - backend
         build:
-            # context: ./frontend
+            context: ./frontend
             args:
                 - API_BASE_URL=$CLIENT_API_BASE_URL
         image: szekler/my-awesome-blog-frontend
         container_name: frontend
         ports:
             - $FRONTEND_LOCAL_PORT:$FRONTEND_DOCKER_PORT
-        networks:
-            - frontend
 
 volumes:
   db:
-    driver: azure_file
-    driver_opts:
-      share_name: mysqldb
-      storage_account_name: myawesomeblog
     
-
 networks:
   backend:
-  frontend:

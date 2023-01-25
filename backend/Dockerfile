@@ -10,5 +10,6 @@ RUN npm ci --omit=dev
 # Bundle app source
 COPY . .
 
-EXPOSE $BACKEND_DOCKER_PORT
+ARG PORT
+EXPOSE PORT
 CMD npm start
