@@ -35,6 +35,21 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          slot-name: 'production'
+          slot-name: production
           publish-profile: ${{ secrets.BLOG_AZURE_PUBLISH_PROFILE }}
-          package: "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          
+      - name: Set environment variables
+        uses: azure/webapps-set-env@v1
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          slot-name: production
+          env: |
+            DB_HOST='my-awesome-blog.database.windows.net'
+            DB_USER='szekler'
+            DB_PASSWORD=${{ secrets.BLOG_DB_PASSWORD }}
+            DB_NAME='my_awesome_blog_db'
+            DB_PORT=1433
+            CLIENT_ORIGIN='https://my-awesome-blog.azurewebsites.net'
+            JWT_SECRET=${{ secrets.BLOG_JWT_SECRET }}
+            PORT=8080
