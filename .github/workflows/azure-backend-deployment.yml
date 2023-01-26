@@ -1,4 +1,4 @@
-name: Deploy on Azure
+name: Deploy backend on Azure
 
 on:
   workflow_dispatch:
