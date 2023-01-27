@@ -20,6 +20,7 @@ jobs:
 
       - name: install dependencies
         run: npm ci --omit=dev
+        working-directory: ./backend
 
   deploy:
     runs-on: ubuntu-latest
