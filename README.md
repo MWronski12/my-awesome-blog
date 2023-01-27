@@ -2,7 +2,7 @@
 
 This is a simple project showcasing my ability to create fullstack web apps from scratch:
 
-[application](https://ashy-mushroom-0e7700e10.2.azurestaticapps.net/)
+##### [my-awesome-blog](https://ashy-mushroom-0e7700e10.2.azurestaticapps.net/)
 
 
 ### How to start the app locally:
