@@ -1,4 +1,9 @@
-## Simple NodeJS blog application using JWT for authentication
+## NodeJS blog application using JWT for authentication
+
+This is a simple project showcasing my ability to create fullstack web apps from scratch:
+
+[application](https://ashy-mushroom-0e7700e10.2.azurestaticapps.net/)
+
 
 ### How to start the app locally:
 
@@ -11,6 +16,16 @@
 - `npm i`
 - `npm run dev`
 
+### Tech stack:
+
+- Express.js
+- React
+- Sequelize ORM
+- JWT Tokens
+- Mocha with Chai
+- bcrypt.js
+- Azure Web Apps
+- Github actions
 
 ### Application DEMO:
 
