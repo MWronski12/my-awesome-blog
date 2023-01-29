@@ -1,6 +1,6 @@
 ## NodeJS blog application using JWT for authentication
 
-This is a simple project showcasing my ability to create fullstack web apps from scratch:
+This is a simple project showcasing my ability to create fullstack web apps from scratch. Check it out yourself:
 
 [application](https://ashy-mushroom-0e7700e10.2.azurestaticapps.net/)
 

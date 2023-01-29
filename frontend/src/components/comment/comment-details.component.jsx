@@ -22,16 +22,15 @@ export default function CommentDetails({ comment, newCommentEventCallback }) {
 
   return (
     <div className="my-1">
-      {user && user.username && (
-        <div className="d-flex flex-column">
-          <span className="d-flex align-items-center">
-            <span className="text-muted flex-grow-1">
-              {comment.user.username +
-                " " +
-                blogService.formatDate(comment.createdAt)}
-            </span>
-            {(authService.isAdminOrModerator(user) ||
-              user.id === comment.userId) && (
+      <div className="d-flex flex-column">
+        <span className="d-flex align-items-center">
+          <span className="text-muted flex-grow-1">
+            {comment.user.username +
+              " " +
+              blogService.formatDate(comment.createdAt)}
+          </span>
+          {user && (authService.isAdminOrModerator(user) ||
+            user.id === comment.userId) && (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -45,10 +44,10 @@ export default function CommentDetails({ comment, newCommentEventCallback }) {
                 <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
               </svg>
             )}
-          </span>
-          <span>{comment.content}</span>
-        </div>
-      )}
+        </span>
+        <span>{comment.content}</span>
+      </div>
+
     </div>
   );
 }
