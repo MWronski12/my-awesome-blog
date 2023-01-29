@@ -31,6 +31,7 @@ export default function CommentList({ postId }) {
         postId={postId}
         newCommentEventCallback={newCommentEventCallback}
       />
+      {state.comments.length !== 0 && <h1>Comments:</h1>}
       {state.comments.map((comment) => (
         <CommentDetails
           key={comment.id}
