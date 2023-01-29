@@ -1,7 +1,7 @@
-import chai, { assert } from "chai";
+import chai from "chai";
 import chaiHttp from "chai-http";
 import jwt from "jsonwebtoken";
-import { app } from "../server.js";
+import { app } from "../index.js";
 
 let should = chai.should();
 chai.use(chaiHttp);

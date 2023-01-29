@@ -2,7 +2,7 @@ import chai from "chai";
 import chaiHttp from "chai-http";
 import jwt from "jsonwebtoken";
 import { db } from "../app/models/index.js";
-import { app } from "../server.js";
+import { app } from "../index.js";
 
 let should = chai.should();
 chai.use(chaiHttp);
