@@ -13,13 +13,7 @@ export default function CommentList({ postId }) {
   const [comments, setComments] = useState([]);
 
   const newCommentCallback = (comment) => {
-    blogService.getComment(postId, comment.id)
-      .then((response) => {
-        setComments([...comments, response.data.comment])
-      })
-      .catch(e => {
-        console.log(e.response.data.message);
-      });
+    setComments([...comments, comment])
   };
 
   const deleteCommentCallback = (comment) => {

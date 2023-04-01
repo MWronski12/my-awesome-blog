@@ -1,7 +1,6 @@
 "use strict";
 
 import "dotenv/config";
-console.log(process.env.JWT_SECRET)
 import express from "express";
 import bodyParser from "body-parser";
 import logger from "morgan";

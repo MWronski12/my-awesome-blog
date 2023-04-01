@@ -25,7 +25,7 @@ export default function CommentDetails({ comment, deleteCommentCallback }) {
       <div className="d-flex flex-column">
         <span className="d-flex align-items-center">
           <span className="text-muted flex-grow-1">
-            {comment.user.username +
+            {comment.user ? comment.user.username : user.username +
               " " +
               blogService.formatDate(comment.createdAt)}
           </span>

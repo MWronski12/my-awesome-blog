@@ -7,6 +7,16 @@ This is a simple project showcasing my ability to create fullstack web apps from
 
 ### How to start the app locally:
 
+#### With docker:
+
+- `git clone https://github.com/MWronski12/my-awesome-blog`
+- `git clone cd my-awesome-blog`
+- `docker-compose up`
+
+Open http://localhost:5173 in your browser
+
+#### With node:
+
 - `git clone https://github.com/MWronski12/my-awesome-blog`
 - `cd backend`
 - `npm i`
