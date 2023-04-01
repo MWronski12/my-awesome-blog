@@ -9,7 +9,7 @@ import blogService from "../../services/blog.service";
 // Common
 import ValidationError from "../../common/validation-error";
 
-export default function CreateComment({ postId, newCommentEventCallback }) {
+export default function CreateComment({ postId, newCommentCallback }) {
   const [user, setUser] = useGlobalState("user");
 
   // Form validation hook
@@ -35,7 +35,7 @@ export default function CreateComment({ postId, newCommentEventCallback }) {
         content: comment,
       })
       .then((response) => {
-        newCommentEventCallback();
+        newCommentCallback(response.data.comment);
       })
       .catch((error) => {
         console.log(error.response.data.message);

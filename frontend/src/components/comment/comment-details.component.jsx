@@ -6,14 +6,14 @@ import { useGlobalState } from "../../store";
 import blogService from "../../services/blog.service";
 import authService from "../../services/auth.service";
 
-export default function CommentDetails({ comment, newCommentEventCallback }) {
+export default function CommentDetails({ comment, deleteCommentCallback }) {
   const [user, setUser] = useGlobalState("user");
 
   function onDelete() {
     blogService
       .deleteComment(comment.postId, comment.id)
       .then((response) => {
-        newCommentEventCallback();
+        deleteCommentCallback(comment);
       })
       .catch((error) => {
         console.log(error.response.data.message);

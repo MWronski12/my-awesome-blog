@@ -39,7 +39,7 @@ const createComment = async (req, res) => {
 
 const getComment = async (req, res) => {
   try {
-    const comment = await db.Comment.findByPk(req.params.id);
+    const comment = await db.Comment.findByPk(req.params.id, {include: { model: db.User, attributes: ["username"] }});
     if (comment === null) {
       return res.status(404).send({ message: "Not found" });
     }
