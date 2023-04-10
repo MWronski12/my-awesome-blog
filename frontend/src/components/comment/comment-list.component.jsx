@@ -7,36 +7,41 @@ import CreateComment from "./create-comment.component";
 
 // Services
 import BlogService from "../../services/blog.service";
+import blogService from "../../services/blog.service";
 
 export default function CommentList({ postId }) {
-  const [state, setState] = useState({ comments: [], newCommentEvent: 0 });
+  const [comments, setComments] = useState([]);
 
-  const newCommentEventCallback = () => {
-    setState({ ...state, newCommentEvent: state.newCommentEvent++ });
+  const newCommentCallback = (comment) => {
+    setComments([...comments, comment])
+  };
+
+  const deleteCommentCallback = (comment) => {
+    setComments(comments.filter((c) => c.id !== comment.id));
   };
 
   useEffect(() => {
     BlogService.getPostComments(postId)
       .then((response) => {
-        setState({ comments: response.data.comments });
+        setComments(response.data.comments);
       })
       .catch((error) => {
         console.log(error.response.message);
       });
-  }, [state.newCommentEvent]);
+  }, []);
 
   return (
     <div className="mb-5">
       <CreateComment
         postId={postId}
-        newCommentEventCallback={newCommentEventCallback}
+        newCommentCallback={newCommentCallback}
       />
-      {state.comments.length !== 0 && <h1>Comments:</h1>}
-      {state.comments.map((comment) => (
+      {comments.length != 0 && <h1>Comments:</h1>}
+      {comments.map((comment) => (
         <CommentDetails
           key={comment.id}
           comment={comment}
-          newCommentEventCallback={newCommentEventCallback}
+          deleteCommentCallback={deleteCommentCallback}
         />
       ))}
     </div>

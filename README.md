@@ -8,6 +8,16 @@ It is hosted on azure free students plan and the app is put to sleep when not us
 
 ### How to start the app locally:
 
+#### With docker:
+
+- `git clone https://github.com/MWronski12/my-awesome-blog`
+- `git clone cd my-awesome-blog`
+- `docker-compose up`
+
+Open http://localhost:5173 in your browser
+
+#### With node:
+
 - `git clone https://github.com/MWronski12/my-awesome-blog`
 - `cd backend`
 - `npm i`

@@ -6,14 +6,14 @@ import { useGlobalState } from "../../store";
 import blogService from "../../services/blog.service";
 import authService from "../../services/auth.service";
 
-export default function CommentDetails({ comment, newCommentEventCallback }) {
+export default function CommentDetails({ comment, deleteCommentCallback }) {
   const [user, setUser] = useGlobalState("user");
 
   function onDelete() {
     blogService
       .deleteComment(comment.postId, comment.id)
       .then((response) => {
-        newCommentEventCallback();
+        deleteCommentCallback(comment);
       })
       .catch((error) => {
         console.log(error.response.data.message);
@@ -25,7 +25,7 @@ export default function CommentDetails({ comment, newCommentEventCallback }) {
       <div className="d-flex flex-column">
         <span className="d-flex align-items-center">
           <span className="text-muted flex-grow-1">
-            {comment.user.username +
+            {comment.user ? comment.user.username : user.username +
               " " +
               blogService.formatDate(comment.createdAt)}
           </span>
